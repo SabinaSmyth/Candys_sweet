@@ -44,14 +44,21 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("print-date").innerText = `Fecha de emisión: ${new Date().toLocaleDateString()}`;
     
     // PROCESO DE INICIO DE SESIÓN
+    const savedUsername = localStorage.getItem("candys_username");
     const savedPassword = localStorage.getItem("candys_password");
     const overlay = document.getElementById("login-overlay");
     
-    if (savedPassword) {
+    if (savedUsername) {
+        const usernameInput = document.getElementById("login-username");
+        if (usernameInput) usernameInput.value = savedUsername;
+    }
+    
+    if (savedUsername && savedPassword) {
         if (overlay) overlay.style.display = "flex";
-        const loggedIn = await attemptLogin(savedPassword, true);
+        const loggedIn = await attemptLogin(savedUsername, savedPassword, true);
         if (!loggedIn) {
-            document.getElementById("login-password").value = savedPassword;
+            const pwdInput = document.getElementById("login-password");
+            if (pwdInput) pwdInput.value = savedPassword;
         }
     } else {
         if (overlay) overlay.style.display = "flex";
@@ -1173,7 +1180,7 @@ function handleRecipeImageUpload(event) {
 
 // ================= SISTEMA DE AUTENTICACIÓN (LOGIN) =================
 
-async function attemptLogin(password, remember = false) {
+async function attemptLogin(username, password, remember = false) {
     const errorMsg = document.getElementById("login-error-msg");
     const overlay = document.getElementById("login-overlay");
     const btnSubmit = document.getElementById("btn-login-submit");
@@ -1190,12 +1197,12 @@ async function attemptLogin(password, remember = false) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ password })
+            body: JSON.stringify({ username, password })
         });
         
         if (!res.ok) {
             const data = await res.json();
-            throw new Error(data.error || "Contraseña incorrecta");
+            throw new Error(data.error || "Usuario o contraseña incorrectos.");
         }
         
         const config = await res.json();
@@ -1218,8 +1225,9 @@ async function attemptLogin(password, remember = false) {
                 if (syncBtn) syncBtn.style.display = "inline-flex";
                 if (logoutBtn) logoutBtn.style.display = "inline-flex";
                 
-                // Guardar la contraseña si corresponde
+                // Guardar credenciales en el dispositivo si corresponde
                 if (remember) {
+                    localStorage.setItem("candys_username", username);
                     localStorage.setItem("candys_password", password);
                 }
                 
@@ -1243,6 +1251,7 @@ async function attemptLogin(password, remember = false) {
         }
         if (overlay) overlay.style.display = "flex";
         
+        // Si el login automático falló, no borramos el username pero sí la contraseña
         localStorage.removeItem("candys_password");
         return false;
     } finally {
@@ -1255,9 +1264,10 @@ async function attemptLogin(password, remember = false) {
 
 async function handleLoginSubmit(event) {
     event.preventDefault();
+    const username = document.getElementById("login-username").value.trim();
     const password = document.getElementById("login-password").value;
     const remember = document.getElementById("remember-password").checked;
-    await attemptLogin(password, remember);
+    await attemptLogin(username, password, remember);
 }
 
 function toggleLoginPassword() {
@@ -1273,7 +1283,8 @@ function toggleLoginPassword() {
 }
 
 function logout() {
-    if (confirm("¿Estás seguro de que deseas cerrar sesión? Deberás ingresar la contraseña nuevamente.")) {
+    if (confirm("¿Estás seguro de que deseas cerrar sesión? Deberás ingresar el usuario y contraseña nuevamente.")) {
+        localStorage.removeItem("candys_username");
         localStorage.removeItem("candys_password");
         localStorage.removeItem("sabi_data");
         state = { raw_materials: [], recipes: [], recipesViewMode: "grid" };
