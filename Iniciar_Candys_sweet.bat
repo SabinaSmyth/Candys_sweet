@@ -1,7 +1,7 @@
 @echo off
-title Candys_sweet - Sistema de Costos
+title Candys sweet - Sistema de Costos
 echo =========================================
-echo       INICIANDO CANDYS_SWEET...
+echo       INICIANDO CANDYS SWEET...
 echo =========================================
 start "" "index.html"
 exit
