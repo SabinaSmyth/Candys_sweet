@@ -1,0 +1,13 @@
+# SABI - Git Ignore
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Excel and local temp backups
+*.xlsm
+*.xlsx
+*.bak
+
+# Temporary/Scratch Python scripts
+__pycache__/
+*.pyc

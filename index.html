@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SABI - Sistema de Costos y Stock</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>SABI</span>
+                </div>
+                <small class="subtitle">Gestión de Costos</small>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-tab="dashboard-tab" id="btn-nav-dashboard">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-tab="stock-tab" id="btn-nav-stock">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>Stock y Precios</span>
+                </button>
+                <button class="nav-item" data-tab="recipes-tab" id="btn-nav-recipes">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span>Recetas (Fichas)</span>
+                </button>
+                <button class="nav-item" data-tab="catalog-tab" id="btn-nav-catalog">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"></path></svg>
+                    <span>Lista de Precios</span>
+                </button>
+                <button class="nav-item" data-tab="backup-tab" id="btn-nav-backup">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+                    <span>Copia de Seguridad</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>© 2026 Sistema SABI</p>
+                <span class="badge">V2.0 Offline</span>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Mobile Bar -->
+            <header class="mobile-header">
+                <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <h1 class="mobile-logo">SABI</h1>
+            </header>
+
+            <!-- TAB: Dashboard -->
+            <section id="dashboard-tab" class="tab-panel active">
+                <div class="header-section">
+                    <h2>Panel de Control</h2>
+                    <p class="section-desc">Vista general del estado de tus costos y stock.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon insumos">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Insumos Registrados</span>
+                            <span class="stat-value" id="stat-total-materials">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon recetas">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Productos / Recetas</span>
+                            <span class="stat-value" id="stat-total-recipes">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon costo-promedio">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Costo Promedio Receta</span>
+                            <span class="stat-value" id="stat-avg-cost">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-details">
+                    <div class="detail-card card-large">
+                        <h3>Acciones Rápidas</h3>
+                        <div class="quick-actions">
+                            <button class="action-btn" onclick="switchTab('stock-tab')">
+                                <span class="icon">+</span>
+                                <span class="label">Actualizar Precios Stock</span>
+                            </button>
+                            <button class="action-btn" onclick="openNewRecipeModal()">
+                                <span class="icon">🍳</span>
+                                <span class="label">Crear Nueva Receta</span>
+                            </button>
+                            <button class="action-btn" onclick="switchTab('catalog-tab')">
+                                <span class="icon">📋</span>
+                                <span class="label">Ver Lista de Precios</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>Insumos Más Caros</h3>
+                        <ul class="top-list" id="top-expensive-materials">
+                            <!-- JS loaded list -->
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB: Stock y Precios -->
+            <section id="stock-tab" class="tab-panel">
+                <div class="header-section flex-row">
+                    <div>
+                        <h2>Materias Primas y Packaging</h2>
+                        <p class="section-desc">Gestiona tus ingredientes, cajas, bolsas y sus costos unitarios.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-material" onclick="openMaterialModal()">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Nuevo Insumo
+                    </button>
+                </div>
+
+                <div class="table-controls">
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="search-materials" placeholder="Buscar insumo (ej: chocolate, caja)..." oninput="filterMaterials()">
+                    </div>
+                    <div class="filter-box">
+                        <select id="filter-material-category" onchange="filterMaterials()">
+                            <option value="all">Todas las Categorías</option>
+                            <option value="Ingrediente">Ingredientes</option>
+                            <option value="Packaging">Packaging (Cajas/Bolsas)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="materials-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre del Insumo</th>
+                                <th>Categoría</th>
+                                <th>Unidad</th>
+                                <th>Tamaño Paquete</th>
+                                <th>Costo Paquete</th>
+                                <th>Costo Unitario (gramo/u)</th>
+                                <th class="text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="materials-table-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB: Recetas (Fichas Técnicas) -->
+            <section id="recipes-tab" class="tab-panel">
+                <div class="header-section flex-row">
+                    <div>
+                        <h2>Recetas y Productos Costeados</h2>
+                        <p class="section-desc">Administra el armado de tus productos finales, sus ingredientes y packaging.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openNewRecipeModal()">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Nueva Receta
+                    </button>
+                </div>
+
+                <div class="table-controls">
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="search-recipes" placeholder="Buscar receta (ej: budin, alfajor)..." oninput="filterRecipes()">
+                    </div>
+                    <div class="view-toggle-container" style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:12px; font-weight:600; color:var(--text-muted)">Vista:</span>
+                        <div class="view-toggle-buttons" style="display:flex; border: 1px solid var(--border-color); border-radius: var(--radius-sm); overflow:hidden; background-color:#ffffff;">
+                            <button id="view-mode-grid" class="view-mode-btn active" onclick="setRecipesViewMode('grid')" style="padding: 8px 12px; border:none; background:none; cursor:pointer; font-weight:600; font-size:12px; transition: var(--transition);">Cuadrícula</button>
+                            <button id="view-mode-list" class="view-mode-btn" onclick="setRecipesViewMode('list')" style="padding: 8px 12px; border:none; background:none; cursor:pointer; font-weight:600; font-size:12px; transition: var(--transition); border-left:1px solid var(--border-color);">Lista</button>
+                            <button id="view-mode-large" class="view-mode-btn" onclick="setRecipesViewMode('large')" style="padding: 8px 12px; border:none; background:none; cursor:pointer; font-weight:600; font-size:12px; transition: var(--transition); border-left:1px solid var(--border-color);">Detalle Grande</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recipes-grid" id="recipes-grid">
+                    <!-- Cards injected by JS -->
+                </div>
+            </section>
+
+            <!-- TAB: Lista de Precios / Catálogo -->
+            <section id="catalog-tab" class="tab-panel">
+                <div class="header-section flex-row no-print">
+                    <div>
+                        <h2>Lista de Precios al Público</h2>
+                        <p class="section-desc">Catálogo simplificado de tus productos finales con su costo, margen y precio de venta.</p>
+                    </div>
+                    <div style="display:flex; gap:12px;">
+                        <button class="btn btn-secondary" onclick="printClientCatalog()">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            Imprimir para Clientes
+                        </button>
+                        <button class="btn btn-primary" onclick="window.print()">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            Imprimir Lista Interna
+                        </button>
+                    </div>
+                </div>
+
+                <div class="print-only-header">
+                    <h1>SABI - Lista de Precios y Costos</h1>
+                    <p id="print-date"></p>
+                </div>
+
+                <div class="table-controls no-print">
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="search-catalog" placeholder="Buscar producto en lista..." oninput="filterCatalog()">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table id="catalog-table">
+                        <thead>
+                            <tr>
+                                <th>Producto / Receta</th>
+                                <th class="text-right hide-client-print">Costo Receta</th>
+                                <th class="text-right hide-client-print">Costo Packaging</th>
+                                <th class="text-right hide-client-print">Costo Total</th>
+                                <th class="text-right hide-client-print">Rendimiento (Ganancia)</th>
+                                <th class="text-right highlight-header">Precio Final de Venta</th>
+                                <th class="text-right text-success-header no-print hide-client-print">Ganancia Estimada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalog-table-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB: Copia de Seguridad -->
+            <section id="backup-tab" class="tab-panel">
+                <div class="header-section">
+                    <h2>Copias de Seguridad e Importación</h2>
+                    <p class="section-desc">Respalda tus datos o transfiérelos entre tu computadora y tu celular.</p>
+                </div>
+
+                <div class="backup-container">
+                    <div class="backup-card">
+                        <div class="backup-icon">📥</div>
+                        <h3>Exportar Datos</h3>
+                        <p>Descarga toda tu base de datos actual (insumos, clasificaciones, recetas y precios) en un archivo ligero. Guarda este archivo para tener un respaldo o para cargarlo en otro dispositivo.</p>
+                        <button class="btn btn-primary btn-large" onclick="exportData()">Descargar Copia de Seguridad</button>
+                    </div>
+
+                    <div class="backup-card">
+                        <div class="backup-icon">📤</div>
+                        <h3>Importar Datos</h3>
+                        <p>Sube un archivo de copia de seguridad (`.json`) previamente exportado para restaurar tu información o sincronizarla desde otro dispositivo.</p>
+                        <div class="file-upload-wrapper">
+                            <label for="import-file-input" class="btn btn-secondary btn-large">Seleccionar Archivo de Respaldo</label>
+                            <input type="file" id="import-file-input" accept=".json" onchange="importData(event)" style="display:none;">
+                            <span id="import-file-name" class="file-name-display">Ningún archivo seleccionado</span>
+                        </div>
+                    </div>
+
+                    <div class="backup-card" style="grid-column: 1 / -1;">
+                        <div class="backup-icon">☁️</div>
+                        <h3>Sincronización en la Nube (Supabase)</h3>
+                        <p>Conecta SABI a una base de datos en la nube para guardar tu información de forma segura y usar el sistema en múltiples dispositivos (PC y Celular) en tiempo real.</p>
+                        <form id="supabase-config-form" onsubmit="saveSupabaseConfig(event)" style="width: 100%; max-width: 500px; padding: 0; text-align: left; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; background: none;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="supabase-url">Supabase Project URL</label>
+                                <input type="text" id="supabase-url" placeholder="https://xxxx.supabase.co" style="width: 100%;">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="supabase-key">Supabase Anon Key</label>
+                                <input type="password" id="supabase-key" placeholder="eyJhbGciOi..." style="width: 100%;">
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                                <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar y Conectar</button>
+                                <button type="button" class="btn btn-secondary" onclick="disconnectSupabase()" id="btn-disconnect-supabase" style="display: none;">Desconectar</button>
+                            </div>
+                        </form>
+                        <div id="supabase-status-indicator" style="margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted);">
+                            Estado: <span id="supabase-status-text" style="color: var(--danger); font-weight: bold;">Sin configurar (Modo local)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: Add/Edit Material -->
+    <div class="modal" id="material-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="material-modal-title">Agregar Insumo</h3>
+                <button class="close-modal" onclick="closeMaterialModal()">&times;</button>
+            </div>
+            <form id="material-form" onsubmit="saveMaterialForm(event)">
+                <input type="hidden" id="edit-material-original-name">
+                
+                <div class="form-group">
+                    <label for="material-name">Nombre del Insumo</label>
+                    <input type="text" id="material-name" required placeholder="Ej: CHOCOLATE NEGRO COBERTURA">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="material-category">Categoría</label>
+                        <select id="material-category" required>
+                            <option value="Ingrediente">Ingrediente</option>
+                            <option value="Packaging">Packaging (Cajas/Bolsas/etc)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="material-unit">Unidad de Medida</label>
+                        <input type="text" id="material-unit" list="material-units-list" required placeholder="Ej: KILOS, UNIDADES, METROS">
+                        <datalist id="material-units-list">
+                            <option value="KILOS"></option>
+                            <option value="LITROS"></option>
+                            <option value="UNIDADES"></option>
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="material-package-size">Medida / Cantidad Paquete</label>
+                        <input type="number" step="any" id="material-package-size" required placeholder="Ej: 1 (para 1kg) o 12 (para docena)">
+                    </div>
+                    <div class="form-group">
+                        <label for="material-package-cost">Costo del Paquete ($)</label>
+                        <input type="number" step="any" id="material-package-cost" required placeholder="Ej: 9500">
+                    </div>
+                </div>
+
+                <div class="calculated-preview" id="material-calc-preview">
+                    Costo unitario calculado: <strong>$0.00</strong> por gramo/unidad.
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeMaterialModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Insumo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Recipe Details (Ficha Técnica & Edición de Receta) -->
+    <div class="modal" id="recipe-modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 id="recipe-modal-title">Ficha Técnica de Receta</h3>
+                <button class="close-modal" onclick="closeRecipeModal()">&times;</button>
+            </div>
+            
+            <div class="recipe-modal-body">
+                <input type="hidden" id="edit-recipe-index">
+                
+                <!-- Basic Info -->
+                <div class="recipe-basic-info form-row">
+                    <div class="form-group flex-2">
+                        <label for="recipe-name">Nombre del Producto Final</label>
+                        <input type="text" id="recipe-name" required placeholder="Ej: BUDIN DE LIMON X 300GR">
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-margin">Rendimiento / Rentabilidad</label>
+                        <input type="number" step="0.01" id="recipe-margin" required placeholder="Ej: 2 (ganar 200%)" oninput="recalcModalRecipe()">
+                        <span class="help-text">1.5 = ganar 150%, 2 = ganar 200%</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="recipe-extra-expenses">Gastos Extra ($)</label>
+                        <input type="number" step="any" id="recipe-extra-expenses" required placeholder="Ej: 150" oninput="recalcModalRecipe()">
+                        <span class="help-text">Gas, luz, etc.</span>
+                    </div>
+                </div>
+
+                <!-- Image Uploader Form Row -->
+                <div class="form-row" style="margin-bottom:16px;">
+                    <div class="form-group flex-2" style="flex-direction: row; align-items: center; gap: 16px;">
+                        <div class="recipe-image-preview-container">
+                            <img id="recipe-modal-image-preview" src="" alt="" style="display:none; width: 64px; height: 64px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                            <div id="recipe-modal-image-placeholder" class="recipe-image-placeholder" style="width: 64px; height: 64px; background-color: #f3f4f6; border-radius: var(--radius-sm); border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 20px;">📷</div>
+                        </div>
+                        <div class="form-group" style="flex:1;">
+                            <label for="recipe-image-input">Imagen del Producto (Celular o PC)</label>
+                            <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="font-size: 12px; border:none; padding:4px 0; background:none;">
+                            <span class="help-text">Se comprimirá automáticamente para ahorrar espacio.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recipe-sections-grid">
+                    <!-- Ingredients Table -->
+                    <div class="recipe-section-col">
+                        <div class="section-title-bar">
+                            <h4>🍳 Ingredientes de la Receta</h4>
+                            <button class="btn btn-small" type="button" onclick="openItemPicker('Ingrediente')">+ Agregar Ingrediente</button>
+                        </div>
+                        <div class="mini-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Ingrediente</th>
+                                        <th class="width-80 text-right">Cant. Usada</th>
+                                        <th class="width-50">Unidad</th>
+                                        <th class="width-80 text-right">Costo</th>
+                                        <th class="width-40 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recipe-ingredients-body">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="section-total-bar">
+                            Subtotal Ingredientes: <span id="subtotal-ingredients">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Packaging Table -->
+                    <div class="recipe-section-col">
+                        <div class="section-title-bar">
+                            <h4>📦 Packaging / Embalaje</h4>
+                            <button class="btn btn-small" type="button" onclick="openItemPicker('Packaging')">+ Agregar Packaging</button>
+                        </div>
+                        <div class="mini-table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Packaging</th>
+                                        <th class="width-80 text-right">Cant. Usada</th>
+                                        <th class="width-50">Unidad</th>
+                                        <th class="width-80 text-right">Costo</th>
+                                        <th class="width-40 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recipe-packaging-body">
+                                    <!-- Injected dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="section-total-bar">
+                            Subtotal Packaging: <span id="subtotal-packaging">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Cost Calculation Card -->
+                <div class="cost-summary-card">
+                    <div class="summary-item">
+                        <span class="label">Suma Costo Base (Receta + Pack):</span>
+                        <span class="value" id="summary-base-cost">$0.00</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Gastos Extra:</span>
+                        <span class="value" id="summary-extra-expenses">$0.00</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span class="label">PRECIO SUGERIDO DE VENTA:</span>
+                        <span class="value" id="summary-final-price">$0.00</span>
+                    </div>
+                    <div class="summary-item ganancia">
+                        <span class="label">Ganancia Neta por Venta:</span>
+                        <span class="value text-success" id="summary-net-profit">$0.00</span>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-danger-secondary" type="button" id="btn-delete-recipe" onclick="deleteCurrentRecipe()" style="margin-right: auto;">Eliminar Receta</button>
+                <button type="button" class="btn btn-secondary" onclick="closeRecipeModal()">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveRecipeForm()">Guardar Receta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Material Selector (Picker inside Recipe Edit) -->
+    <div class="modal" id="item-picker-modal">
+        <div class="modal-content picker-content">
+            <div class="modal-header">
+                <h3 id="item-picker-title">Seleccionar Insumo</h3>
+                <button class="close-modal" onclick="closeItemPicker()">&times;</button>
+            </div>
+            
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-picker-items" placeholder="Filtrar por nombre..." oninput="filterPickerItems()">
+            </div>
+
+            <div class="picker-list-container">
+                <ul class="picker-list" id="picker-items-list">
+                    <!-- Injected by JS -->
+                </ul>
+            </div>
+
+            <div class="picker-quantity-box" id="picker-qty-container" style="display:none;">
+                <div class="form-group">
+                    <label for="picker-item-qty">Cantidad a utilizar en esta receta</label>
+                    <div class="qty-input-wrapper">
+                        <input type="number" step="any" id="picker-item-qty" placeholder="Ej: 250 (gramos) o 1 (unidad)">
+                        <span class="qty-unit-label" id="picker-unit-label">gr/u</span>
+                    </div>
+                    <span class="help-text" id="picker-calc-helper"></span>
+                </div>
+                <button class="btn btn-primary btn-full" type="button" onclick="confirmItemPick()">Confirmar y Añadir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">Mensaje guardado.</div>
+
+    <!-- Load Supabase first, then data and app scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="initial-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
