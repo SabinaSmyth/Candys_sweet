@@ -288,24 +288,15 @@
                     <div class="backup-card" style="grid-column: 1 / -1;">
                         <div class="backup-icon">☁️</div>
                         <h3>Sincronización en la Nube (Supabase)</h3>
-                        <p>Conecta SABI a una base de datos en la nube para guardar tu información de forma segura y usar el sistema en múltiples dispositivos (PC y Celular) en tiempo real.</p>
-                        <form id="supabase-config-form" onsubmit="saveSupabaseConfig(event)" style="width: 100%; max-width: 500px; padding: 0; text-align: left; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; background: none;">
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label for="supabase-url">Supabase Project URL</label>
-                                <input type="text" id="supabase-url" placeholder="https://xxxx.supabase.co" style="width: 100%;">
-                            </div>
-                            <div class="form-group" style="margin-bottom: 0;">
-                                <label for="supabase-key">Supabase Anon Key</label>
-                                <input type="password" id="supabase-key" placeholder="eyJhbGciOi..." style="width: 100%;">
-                            </div>
-                            <div style="display: flex; gap: 12px; margin-top: 8px;">
-                                <button type="submit" class="btn btn-primary" style="flex: 1;">Guardar y Conectar</button>
-                                <button type="button" class="btn btn-secondary" onclick="disconnectSupabase()" id="btn-disconnect-supabase" style="display: none;">Desconectar</button>
-                            </div>
-                        </form>
-                        <div id="supabase-status-indicator" style="margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--text-muted);">
-                            Estado: <span id="supabase-status-text" style="color: var(--danger); font-weight: bold;">Sin configurar (Modo local)</span>
+                        <p>El sistema se conecta automáticamente a la base de datos de Supabase configurada en Vercel para mantener toda la información sincronizada en tiempo real entre múltiples dispositivos.</p>
+                        
+                        <div id="supabase-status-indicator" style="margin: 10px 0; font-size: 16px; font-weight: 600; color: var(--text-main);">
+                            Estado: <span id="supabase-status-text" style="color: var(--danger); font-weight: bold;">Cargando configuración...</span>
                         </div>
+
+                        <button class="btn btn-primary" onclick="syncWithSupabase()" id="btn-sync-supabase" style="margin-top: 10px; display: none;">
+                            Sincronizar Ahora
+                        </button>
                     </div>
                 </div>
             </section>

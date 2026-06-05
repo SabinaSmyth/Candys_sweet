@@ -78,8 +78,8 @@ function loadState() {
     
     // Inicializar Supabase y sincronizar en segundo plano si está configurado
     setTimeout(async () => {
-        initSupabase();
-        if (supabaseClient) {
+        const initialized = await initSupabase();
+        if (initialized) {
             await syncWithSupabase();
         }
     }, 100);
@@ -1145,27 +1145,33 @@ function handleRecipeImageUpload(event) {
 
 // ================= INTEGRACIÓN CON SUPABASE (NUBE) =================
 
-function initSupabase() {
-    const url = localStorage.getItem("sabi_supabase_url");
-    const key = localStorage.getItem("sabi_supabase_key");
+async function initSupabase() {
     const statusText = document.getElementById("supabase-status-text");
-    const disconnectBtn = document.getElementById("btn-disconnect-supabase");
+    const syncBtn = document.getElementById("btn-sync-supabase");
     
-    // Rellenar valores en el formulario si existen
-    const urlInput = document.getElementById("supabase-url");
-    const keyInput = document.getElementById("supabase-key");
-    if (urlInput && url && !urlInput.value) urlInput.value = url;
-    if (keyInput && key && !keyInput.value) keyInput.value = key;
-    
-    if (url && key) {
-        try {
+    try {
+        if (statusText) {
+            statusText.innerText = "Conectando...";
+            statusText.style.color = "var(--warning)";
+        }
+        
+        const res = await fetch("/api/config");
+        if (!res.ok) throw new Error("No se pudo obtener la configuración");
+        
+        const config = await res.json();
+        const url = config.supabaseUrl;
+        const key = config.supabaseKey;
+        
+        if (url && key) {
             if (typeof supabase !== 'undefined') {
                 supabaseClient = supabase.createClient(url, key);
                 if (statusText) {
                     statusText.innerText = "Conectado";
                     statusText.style.color = "var(--success)";
                 }
-                if (disconnectBtn) disconnectBtn.style.display = "inline-flex";
+                if (syncBtn) {
+                    syncBtn.style.display = "inline-flex";
+                }
                 return true;
             } else {
                 console.error("Librería de Supabase no cargada.");
@@ -1174,19 +1180,19 @@ function initSupabase() {
                     statusText.style.color = "var(--danger)";
                 }
             }
-        } catch (e) {
-            console.error("Error inicializando Supabase:", e);
-            if (statusText) {
-                statusText.innerText = "Error de conexión";
-                statusText.style.color = "var(--danger)";
-            }
+        } else {
+            console.warn("Supabase no configurado en Vercel (URL/Key vacías).");
         }
-    } else {
-        if (statusText) {
-            statusText.innerText = "Sin configurar (Modo local)";
-            statusText.style.color = "var(--text-muted)";
-        }
-        if (disconnectBtn) disconnectBtn.style.display = "none";
+    } catch (e) {
+        console.error("Error conectando a Supabase a través del config serverless:", e);
+    }
+    
+    if (statusText) {
+        statusText.innerText = "Sin configurar (Modo local)";
+        statusText.style.color = "var(--text-muted)";
+    }
+    if (syncBtn) {
+        syncBtn.style.display = "none";
     }
     supabaseClient = null;
     return false;
@@ -1386,42 +1392,6 @@ async function deleteRecipeFromCloud(name) {
     }
 }
 
-function saveSupabaseConfig(event) {
-    event.preventDefault();
-    const url = document.getElementById("supabase-url").value.trim();
-    const key = document.getElementById("supabase-key").value.trim();
-    
-    if (!url || !key) {
-        alert("Por favor, introduce la URL y la Anon Key de Supabase.");
-        return;
-    }
-    
-    localStorage.setItem("sabi_supabase_url", url);
-    localStorage.setItem("sabi_supabase_key", key);
-    
-    showToast("Credenciales de Supabase guardadas.", "success");
-    
-    const ok = initSupabase();
-    if (ok) {
-        syncWithSupabase();
-    }
-}
-
-function disconnectSupabase() {
-    if (confirm("¿Estás seguro de que deseas desconectar Supabase? El sistema volverá a usar los datos almacenados localmente en este dispositivo.")) {
-        localStorage.removeItem("sabi_supabase_url");
-        localStorage.removeItem("sabi_supabase_key");
-        
-        document.getElementById("supabase-url").value = "";
-        document.getElementById("supabase-key").value = "";
-        
-        initSupabase();
-        showToast("Supabase desconectado.", "info");
-    }
-}
-
 // Hacer globales las funciones llamadas desde el HTML
-window.saveSupabaseConfig = saveSupabaseConfig;
-window.disconnectSupabase = disconnectSupabase;
 window.syncWithSupabase = syncWithSupabase;
 
