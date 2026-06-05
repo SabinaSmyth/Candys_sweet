@@ -51,12 +51,11 @@ function loadState() {
         try {
             state = JSON.parse(savedData);
         } catch (e) {
-            console.error("Error cargando datos de LocalStorage. Cargando datos iniciales.", e);
-            state = JSON.parse(JSON.stringify(INITIAL_DATA));
+            console.error("Error cargando datos de LocalStorage. Cargando estado vacío.", e);
+            state = { raw_materials: [], recipes: [], recipesViewMode: "grid" };
         }
     } else {
-        // Carga inicial desde initial-data.js
-        state = JSON.parse(JSON.stringify(INITIAL_DATA));
+        state = { raw_materials: [], recipes: [], recipesViewMode: "grid" };
     }
     
     if (!state.recipesViewMode) {
