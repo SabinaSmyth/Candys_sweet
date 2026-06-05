@@ -89,6 +89,29 @@ function saveState() {
     localStorage.setItem("sabi_data", JSON.stringify(state));
 }
 
+// FORMATOS Y REDONDEOS
+function formatQty(qty) {
+    if (qty === undefined || qty === null) return "";
+    const parsed = parseFloat(qty);
+    if (isNaN(parsed)) return "";
+    // Redondear a un máximo de 2 decimales para la cocina, eliminando decimales de más si son innecesarios
+    return parseFloat(parsed.toFixed(2));
+}
+
+function formatUnitCost(cost) {
+    if (cost === undefined || cost === null) return "0.00";
+    const parsed = parseFloat(cost);
+    if (isNaN(parsed) || parsed === 0) return "0.00";
+    
+    if (parsed >= 10) {
+        return parsed.toFixed(2);
+    } else if (parsed >= 1) {
+        return parsed.toFixed(3);
+    } else {
+        return parsed.toFixed(4);
+    }
+}
+
 // CÁLCULOS GENERALES
 function calculateUnitCost(material) {
     const size = parseFloat(material.package_size) || 1;
@@ -240,7 +263,7 @@ function renderDashboard() {
         const li = document.createElement("li");
         li.innerHTML = `
             <span class="name">${m.name}</span>
-            <span class="price">$${m.package_cost.toFixed(2)} <small style="color:var(--text-muted)">/${m.package_size} ${m.unit.toLowerCase()}</small></span>
+            <span class="price">$${m.package_cost.toFixed(2)} <small style="color:var(--text-muted)">/${formatQty(m.package_size)} ${m.unit.toLowerCase()}</small></span>
         `;
         listContainer.appendChild(li);
     });
@@ -269,9 +292,9 @@ function renderMaterialsTable(filtered = null) {
             <td style="font-weight:600">${m.name}</td>
             <td><span class="category-tag ${m.category.toLowerCase()}">${m.category}</span></td>
             <td>${m.unit}</td>
-            <td>${m.package_size}</td>
+            <td>${formatQty(m.package_size)}</td>
             <td style="font-weight:500">$${parseFloat(m.package_cost).toFixed(2)}</td>
-            <td style="color: var(--primary); font-weight:700">$${m.unit_cost.toFixed(4)} <small style="color:var(--text-muted)">/ ${unitSymbol}</small></td>
+            <td style="color: var(--primary); font-weight:700">$${formatUnitCost(m.unit_cost)} <small style="color:var(--text-muted)">/ ${unitSymbol}</small></td>
             <td class="action-links">
                 <button class="action-link-btn" onclick="openMaterialModal('${m.name.replace(/'/g, "\\'")}')">Editar</button>
                 <button class="action-link-btn delete-link" onclick="deleteMaterial('${m.name.replace(/'/g, "\\'")}')">Borrar</button>
@@ -361,7 +384,7 @@ function renderRecipesGrid(filtered = null) {
                 if (mat) {
                     const cost = item.quantity * mat.unit_cost;
                     const unitSymbol = mat.unit === "KILOS" ? "gr" : mat.unit === "LITROS" ? "ml" : "u";
-                    itemsListHtml += `<li><span>${item.material_name} <small style="color:var(--text-muted)">(${item.quantity}${unitSymbol})</small></span> <span class="qty">$${cost.toFixed(2)}</span></li>`;
+                    itemsListHtml += `<li><span>${item.material_name} <small style="color:var(--text-muted)">(${formatQty(item.quantity)}${unitSymbol})</small></span> <span class="qty">$${cost.toFixed(2)}</span></li>`;
                 }
             });
             
@@ -559,7 +582,7 @@ function updateMaterialCalcPreview() {
     
     const unitLabel = unit === "KILOS" ? "gramo" : unit === "LITROS" ? "ml" : "unidad";
     const previewEl = document.getElementById("material-calc-preview");
-    previewEl.innerHTML = `Costo unitario calculado: <strong>$${unitCost.toFixed(4)}</strong> por ${unitLabel}.`;
+    previewEl.innerHTML = `Costo unitario calculado: <strong>$${formatUnitCost(unitCost)}</strong> por ${unitLabel}.`;
 }
 
 function saveMaterialForm(event) {
@@ -747,7 +770,7 @@ function recalcModalRecipe() {
         tr.innerHTML = `
             <td style="font-weight:600">${item.material_name}</td>
             <td class="text-right">
-                <input type="number" step="any" class="mini-qty-input" value="${item.quantity}" oninput="updateRecipeItemQty(${index}, this.value)">
+                <input type="number" step="any" class="mini-qty-input" value="${formatQty(item.quantity)}" oninput="updateRecipeItemQty(${index}, this.value)">
             </td>
             <td style="color:var(--text-muted)">${unitSymbol}</td>
             <td class="text-right">$${cost.toFixed(2)}</td>
@@ -864,12 +887,12 @@ function selectPickerItem(name, element) {
         
         qtyInput.value = "";
         
-        let unitText = "unidades";
-        if (mat.unit === "KILOS") unitText = "gramos";
-        else if (mat.unit === "LITROS") unitText = "mililitros (ml)";
+        let unitText = "unidad";
+        if (mat.unit === "KILOS") unitText = "gramo";
+        else if (mat.unit === "LITROS") unitText = "ml";
         
         unitLabel.innerText = mat.unit === "KILOS" ? "gr" : mat.unit === "LITROS" ? "ml" : "u";
-        calcHelper.innerText = `Costo por ${unitText.slice(0, -1)}: $${mat.unit_cost.toFixed(4)}`;
+        calcHelper.innerText = `Costo por ${unitText}: $${formatUnitCost(mat.unit_cost)}`;
         
         qtyContainer.style.display = "block";
         qtyInput.focus();
