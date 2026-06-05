@@ -23,7 +23,7 @@ let currentPickerType = "";
 const packagingKeywords = ["caja", "bolsa", "molde", "papel", "taza", "base", "candy", "vasitos", "banda", "pipeta", "tinta", "cinta", "envase", "pack"];
 
 // INICIALIZACIÓN
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     loadState();
     setupNavigation();
     setupMobileMenu();
@@ -42,6 +42,20 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Poner fecha de hoy en el listado para imprimir
     document.getElementById("print-date").innerText = `Fecha de emisión: ${new Date().toLocaleDateString()}`;
+    
+    // PROCESO DE INICIO DE SESIÓN
+    const savedPassword = localStorage.getItem("candys_password");
+    const overlay = document.getElementById("login-overlay");
+    
+    if (savedPassword) {
+        if (overlay) overlay.style.display = "flex";
+        const loggedIn = await attemptLogin(savedPassword, true);
+        if (!loggedIn) {
+            document.getElementById("login-password").value = savedPassword;
+        }
+    } else {
+        if (overlay) overlay.style.display = "flex";
+    }
 });
 
 // CARGA Y GUARDADO DE ESTADOS
@@ -74,14 +88,6 @@ function loadState() {
     });
     
     saveState();
-    
-    // Inicializar Supabase y sincronizar en segundo plano si está configurado
-    setTimeout(async () => {
-        const initialized = await initSupabase();
-        if (initialized) {
-            await syncWithSupabase();
-        }
-    }, 100);
 }
 
 function saveState() {
@@ -1165,20 +1171,32 @@ function handleRecipeImageUpload(event) {
     reader.readAsDataURL(file);
 }
 
-// ================= INTEGRACIÓN CON SUPABASE (NUBE) =================
+// ================= SISTEMA DE AUTENTICACIÓN (LOGIN) =================
 
-async function initSupabase() {
-    const statusText = document.getElementById("supabase-status-text");
-    const syncBtn = document.getElementById("btn-sync-supabase");
+async function attemptLogin(password, remember = false) {
+    const errorMsg = document.getElementById("login-error-msg");
+    const overlay = document.getElementById("login-overlay");
+    const btnSubmit = document.getElementById("btn-login-submit");
+    
+    if (btnSubmit) {
+        btnSubmit.innerText = "Conectando...";
+        btnSubmit.disabled = true;
+    }
+    if (errorMsg) errorMsg.style.display = "none";
     
     try {
-        if (statusText) {
-            statusText.innerText = "Conectando...";
-            statusText.style.color = "var(--warning)";
-        }
+        const res = await fetch("/api/config", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ password })
+        });
         
-        const res = await fetch("/api/config");
-        if (!res.ok) throw new Error("No se pudo obtener la configuración");
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || "Contraseña incorrecta");
+        }
         
         const config = await res.json();
         const url = config.supabaseUrl;
@@ -1187,37 +1205,80 @@ async function initSupabase() {
         if (url && key) {
             if (typeof supabase !== 'undefined') {
                 supabaseClient = supabase.createClient(url, key);
+                
+                // Actualizar UI en pestaña backup
+                const statusText = document.getElementById("supabase-status-text");
+                const syncBtn = document.getElementById("btn-sync-supabase");
+                const logoutBtn = document.getElementById("btn-logout");
+                
                 if (statusText) {
                     statusText.innerText = "Conectado";
                     statusText.style.color = "var(--success)";
                 }
-                if (syncBtn) {
-                    syncBtn.style.display = "inline-flex";
+                if (syncBtn) syncBtn.style.display = "inline-flex";
+                if (logoutBtn) logoutBtn.style.display = "inline-flex";
+                
+                // Guardar la contraseña si corresponde
+                if (remember) {
+                    localStorage.setItem("candys_password", password);
                 }
+                
+                // Ocultar overlay
+                if (overlay) overlay.style.display = "none";
+                
+                // Sincronizar datos
+                await syncWithSupabase();
                 return true;
             } else {
-                console.error("Librería de Supabase no cargada.");
-                if (statusText) {
-                    statusText.innerText = "Error: Librería no cargada";
-                    statusText.style.color = "var(--danger)";
-                }
+                throw new Error("Librería de Supabase no cargada.");
             }
         } else {
-            console.warn("Supabase no configurado en Vercel (URL/Key vacías).");
+            throw new Error("Base de datos no configurada en Vercel.");
         }
-    } catch (e) {
-        console.error("Error conectando a Supabase a través del config serverless:", e);
+    } catch (err) {
+        console.error("Error de login:", err.message);
+        if (errorMsg) {
+            errorMsg.innerText = err.message || "Error al ingresar. Inténtalo de nuevo.";
+            errorMsg.style.display = "block";
+        }
+        if (overlay) overlay.style.display = "flex";
+        
+        localStorage.removeItem("candys_password");
+        return false;
+    } finally {
+        if (btnSubmit) {
+            btnSubmit.innerText = "Ingresar";
+            btnSubmit.disabled = false;
+        }
     }
-    
-    if (statusText) {
-        statusText.innerText = "Sin configurar (Modo local)";
-        statusText.style.color = "var(--text-muted)";
+}
+
+async function handleLoginSubmit(event) {
+    event.preventDefault();
+    const password = document.getElementById("login-password").value;
+    const remember = document.getElementById("remember-password").checked;
+    await attemptLogin(password, remember);
+}
+
+function toggleLoginPassword() {
+    const input = document.getElementById("login-password");
+    const toggleBtn = document.getElementById("toggle-login-password");
+    if (input.type === "password") {
+        input.type = "text";
+        toggleBtn.innerText = "🙈";
+    } else {
+        input.type = "password";
+        toggleBtn.innerText = "👁️";
     }
-    if (syncBtn) {
-        syncBtn.style.display = "none";
+}
+
+function logout() {
+    if (confirm("¿Estás seguro de que deseas cerrar sesión? Deberás ingresar la contraseña nuevamente.")) {
+        localStorage.removeItem("candys_password");
+        localStorage.removeItem("sabi_data");
+        state = { raw_materials: [], recipes: [], recipesViewMode: "grid" };
+        window.location.reload();
     }
-    supabaseClient = null;
-    return false;
 }
 
 async function syncWithSupabase() {
@@ -1416,4 +1477,7 @@ async function deleteRecipeFromCloud(name) {
 
 // Hacer globales las funciones llamadas desde el HTML
 window.syncWithSupabase = syncWithSupabase;
+window.handleLoginSubmit = handleLoginSubmit;
+window.toggleLoginPassword = toggleLoginPassword;
+window.logout = logout;
 

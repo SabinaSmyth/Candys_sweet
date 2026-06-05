@@ -13,8 +13,33 @@ module.exports = (req, res) => {
     return;
   }
 
-  res.status(200).json({
-    supabaseUrl: process.env.SUPABASE_URL || "",
-    supabaseKey: process.env.SUPABASE_KEY || ""
-  });
+  if (req.method !== 'POST') {
+    res.status(405).json({ success: false, error: 'Method not allowed. Use POST.' });
+    return;
+  }
+
+  const { password } = req.body || {};
+  const correctPassword = process.env.APP_PASSWORD;
+
+  // Si no está configurada la variable en Vercel, bloquear el acceso por seguridad
+  if (!correctPassword) {
+    res.status(500).json({
+      success: false,
+      error: "Error de configuración en el servidor. Falta definir la variable APP_PASSWORD."
+    });
+    return;
+  }
+
+  if (password && password === correctPassword) {
+    res.status(200).json({
+      success: true,
+      supabaseUrl: process.env.SUPABASE_URL || "",
+      supabaseKey: process.env.SUPABASE_KEY || ""
+    });
+  } else {
+    res.status(401).json({
+      success: false,
+      error: "Contraseña incorrecta"
+    });
+  }
 };
