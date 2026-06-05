@@ -1,6 +1,7 @@
 // SABI - Lógica de la Aplicación y Gestión de Estados
 
 let supabaseClient = null;
+let realtimeChannel = null;
 
 let state = {
     raw_materials: [],
@@ -1236,6 +1237,10 @@ async function attemptLogin(username, password, remember = false) {
                 
                 // Sincronizar datos
                 await syncWithSupabase();
+                
+                // Activar suscripción en tiempo real
+                setupRealtimeSubscription();
+                
                 return true;
             } else {
                 throw new Error("Librería de Supabase no cargada.");
@@ -1284,6 +1289,9 @@ function toggleLoginPassword() {
 
 function logout() {
     if (confirm("¿Estás seguro de que deseas cerrar sesión? Deberás ingresar el usuario y contraseña nuevamente.")) {
+        if (realtimeChannel && supabaseClient) {
+            supabaseClient.removeChannel(realtimeChannel);
+        }
         localStorage.removeItem("candys_username");
         localStorage.removeItem("candys_password");
         localStorage.removeItem("sabi_data");
@@ -1292,7 +1300,7 @@ function logout() {
     }
 }
 
-async function syncWithSupabase() {
+async function syncWithSupabase(showNotification = true) {
     if (!supabaseClient) return false;
     
     try {
@@ -1354,11 +1362,15 @@ async function syncWithSupabase() {
         renderRecipesGrid();
         renderCatalogTable();
         
-        showToast("Datos sincronizados con la nube.");
+        if (showNotification) {
+            showToast("Datos sincronizados con la nube.");
+        }
         return true;
     } catch (e) {
         console.error("Error sincronizando con Supabase:", e);
-        showToast("Error de sincronización. Usando caché local.", "error");
+        if (showNotification) {
+            showToast("Error de sincronización. Usando caché local.", "error");
+        }
         return false;
     }
 }
@@ -1484,6 +1496,45 @@ async function deleteRecipeFromCloud(name) {
         console.error("Error eliminando receta de la nube:", e);
         showToast("Error al eliminar receta en la nube.", "error");
     }
+}
+
+// Configurar canales en tiempo real para escuchar cambios en la base de datos
+function setupRealtimeSubscription() {
+    if (!supabaseClient) return;
+    
+    if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+    }
+    
+    // Crear un canal para escuchar cambios de inserts, updates y deletes en las tres tablas
+    realtimeChannel = supabaseClient.channel('db-changes')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'raw_materials' },
+            async (payload) => {
+                console.log('Cambio en raw_materials detectado por canal en tiempo real:', payload);
+                await syncWithSupabase(false); // Sincronización silenciosa
+            }
+        )
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'recipes' },
+            async (payload) => {
+                console.log('Cambio en recipes detectado por canal en tiempo real:', payload);
+                await syncWithSupabase(false); // Sincronización silenciosa
+            }
+        )
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'recipe_ingredients' },
+            async (payload) => {
+                console.log('Cambio en recipe_ingredients detectado por canal en tiempo real:', payload);
+                await syncWithSupabase(false); // Sincronización silenciosa
+            }
+        )
+        .subscribe((status) => {
+            console.log('Estado del canal Supabase Realtime:', status);
+        });
 }
 
 // Hacer globales las funciones llamadas desde el HTML
