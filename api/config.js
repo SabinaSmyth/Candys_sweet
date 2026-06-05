@@ -29,8 +29,16 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const correctUsername = process.env.APP_USERNAME || "admin";
+  const correctUsername = process.env.APP_USERNAME;
   const correctPassword = process.env.APP_PASSWORD;
+
+  if (!correctUsername) {
+    res.status(500).json({
+      success: false,
+      error: "Error del servidor. La variable APP_USERNAME no está configurada en Vercel."
+    });
+    return;
+  }
 
   if (!correctPassword) {
     res.status(500).json({
