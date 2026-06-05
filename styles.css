@@ -1413,6 +1413,14 @@ input:focus, select:focus {
     justify-content: center;
     align-items: center;
     z-index: 99999;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+@media (max-height: 520px) {
+    .login-overlay {
+        align-items: flex-start;
+    }
 }
 
 .login-card {
@@ -1493,6 +1501,19 @@ input:focus, select:focus {
 
 .login-card input[type="checkbox"] {
     accent-color: var(--primary);
+}
+
+.login-card input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.login-card .remember-me-group label {
+    display: inline-block !important;
+    margin-bottom: 0 !important;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8) !important;
+    cursor: pointer;
 }
 
 .login-error {
