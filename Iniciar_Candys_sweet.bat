@@ -1,7 +1,7 @@
 @echo off
-title SABI - Sistema de Costos
+title Candys_sweet - Sistema de Costos
 echo =========================================
-echo       INICIANDO SISTEMA SABI...
+echo       INICIANDO CANDYS_SWEET...
 echo =========================================
 start "" "index.html"
 exit
