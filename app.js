@@ -382,7 +382,18 @@ function renderRecipesGrid(filtered = null) {
             // Modo Lista: Filas horizontales muy compactas, sin fotos y sin listas de ingredientes largas
             const thumbHtml = r.image 
                 ? `<img src="${r.image}" class="recipe-card-thumb" alt="${r.name}" onclick="openImageZoom(event, '${r.image}', '${r.name.replace(/'/g, "\\'")}')">`
-                : `<div class="recipe-card-thumb-placeholder">🧁</div>`;
+                : `<div class="recipe-card-thumb-placeholder">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px; opacity: 0.8;">
+                      <path d="M5.5 15l1.5 6c.2.8.9 1.4 1.7 1.4h6.6c.8 0 1.5-.6 1.7-1.4l1.5-6" />
+                      <path d="M9 15v7" />
+                      <path d="M12 15v7" />
+                      <path d="M15 15v7" />
+                      <path d="M19.5 15c.8 0 1.5-.7 1.5-1.5 0-1-.8-1.5-1.5-1.5h-15c-.7 0-1.5.5-1.5 1.5 0 .8.7 1.5 1.5 1.5h15z" />
+                      <path d="M17.5 12c.8 0 1.5-.7 1.5-1.5 0-1.2-1-2-2-2H7c-1 0-2 .8-2 2 0 .8.7 1.5 1.5 1.5h11z" />
+                      <path d="M15 8.5c.8 0 1.5-.7 1.5-1.5 0-1.5-1.5-3-4.5-3s-4.5 1.5-4.5 3c0 .8.7 1.5 1.5 1.5h6z" />
+                      <circle cx="12" cy="3" r="1" fill="currentColor" />
+                    </svg>
+                  </div>`;
                 
             card.innerHTML = `
                 <div style="display:flex; align-items:center; gap:12px; flex:2; min-width:180px; overflow:hidden;">
@@ -435,7 +446,18 @@ function renderRecipesGrid(filtered = null) {
             } else {
                 imgHtml = `
                     <div class="recipe-card-grid-img-container" style="height: 160px;">
-                        <div class="recipe-card-grid-img-placeholder">🧁</div>
+                        <div class="recipe-card-grid-img-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 48px; height: 48px; opacity: 0.8;">
+                              <path d="M5.5 15l1.5 6c.2.8.9 1.4 1.7 1.4h6.6c.8 0 1.5-.6 1.7-1.4l1.5-6" />
+                              <path d="M9 15v7" />
+                              <path d="M12 15v7" />
+                              <path d="M15 15v7" />
+                              <path d="M19.5 15c.8 0 1.5-.7 1.5-1.5 0-1-.8-1.5-1.5-1.5h-15c-.7 0-1.5.5-1.5 1.5 0 .8.7 1.5 1.5 1.5h15z" />
+                              <path d="M17.5 12c.8 0 1.5-.7 1.5-1.5 0-1.2-1-2-2-2H7c-1 0-2 .8-2 2 0 .8.7 1.5 1.5 1.5h11z" />
+                              <path d="M15 8.5c.8 0 1.5-.7 1.5-1.5 0-1.5-1.5-3-4.5-3s-4.5 1.5-4.5 3c0 .8.7 1.5 1.5 1.5h6z" />
+                              <circle cx="12" cy="3" r="1" fill="currentColor" />
+                            </svg>
+                        </div>
                     </div>
                 `;
             }
@@ -485,7 +507,18 @@ function renderRecipesGrid(filtered = null) {
             } else {
                 imgHtml = `
                     <div class="recipe-card-grid-img-container">
-                        <div class="recipe-card-grid-img-placeholder">🧁</div>
+                        <div class="recipe-card-grid-img-placeholder">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 48px; height: 48px; opacity: 0.8;">
+                              <path d="M5.5 15l1.5 6c.2.8.9 1.4 1.7 1.4h6.6c.8 0 1.5-.6 1.7-1.4l1.5-6" />
+                              <path d="M9 15v7" />
+                              <path d="M12 15v7" />
+                              <path d="M15 15v7" />
+                              <path d="M19.5 15c.8 0 1.5-.7 1.5-1.5 0-1-.8-1.5-1.5-1.5h-15c-.7 0-1.5.5-1.5 1.5 0 .8.7 1.5 1.5 1.5h15z" />
+                              <path d="M17.5 12c.8 0 1.5-.7 1.5-1.5 0-1.2-1-2-2-2H7c-1 0-2 .8-2 2 0 .8.7 1.5 1.5 1.5h11z" />
+                              <path d="M15 8.5c.8 0 1.5-.7 1.5-1.5 0-1.5-1.5-3-4.5-3s-4.5 1.5-4.5 3c0 .8.7 1.5 1.5 1.5h6z" />
+                              <circle cx="12" cy="3" r="1" fill="currentColor" />
+                            </svg>
+                        </div>
                     </div>
                 `;
             }
@@ -762,17 +795,20 @@ function openRecipeModal(index = -1) {
     const imgInput = document.getElementById("recipe-image-input");
     if (imgInput) imgInput.value = "";
     
-    const previewWrapper = document.getElementById("recipe-banner-preview-wrapper");
     const previewImg = document.getElementById("recipe-banner-preview-img");
     const placeholder = document.getElementById("recipe-banner-placeholder");
     
     if (tempRecipe.image) {
-        if (previewImg) previewImg.src = tempRecipe.image;
-        if (previewWrapper) previewWrapper.style.display = "block";
+        if (previewImg) {
+            previewImg.src = tempRecipe.image;
+            previewImg.style.display = "block";
+        }
         if (placeholder) placeholder.style.display = "none";
     } else {
-        if (previewImg) previewImg.src = "";
-        if (previewWrapper) previewWrapper.style.display = "none";
+        if (previewImg) {
+            previewImg.src = "";
+            previewImg.style.display = "none";
+        }
         if (placeholder) placeholder.style.display = "flex";
     }
     
@@ -1202,12 +1238,13 @@ function handleRecipeImageUpload(event) {
             tempRecipe.image = dataUrl;
             
             // Actualizar vista previa en el modal
-            const previewWrapper = document.getElementById("recipe-banner-preview-wrapper");
             const previewImg = document.getElementById("recipe-banner-preview-img");
             const placeholder = document.getElementById("recipe-banner-placeholder");
             
-            if (previewImg) previewImg.src = dataUrl;
-            if (previewWrapper) previewWrapper.style.display = "block";
+            if (previewImg) {
+                previewImg.src = dataUrl;
+                previewImg.style.display = "block";
+            }
             if (placeholder) placeholder.style.display = "none";
         };
         img.onerror = function() {
@@ -1645,16 +1682,13 @@ function setupRealtimeSubscription() {
 function removeRecipeImage() {
     tempRecipe.image = null;
     
-    const previewWrapper = document.getElementById("recipe-banner-preview-wrapper");
     const previewImg = document.getElementById("recipe-banner-preview-img");
     const placeholder = document.getElementById("recipe-banner-placeholder");
     const imgInput = document.getElementById("recipe-image-input");
     
     if (previewImg) {
         previewImg.src = "";
-    }
-    if (previewWrapper) {
-        previewWrapper.style.display = "none";
+        previewImg.style.display = "none";
     }
     if (placeholder) {
         placeholder.style.display = "flex";

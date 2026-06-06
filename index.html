@@ -15,7 +15,18 @@
     <div id="login-overlay" class="login-overlay" style="display: none;">
         <div class="login-card">
             <div class="login-header">
-                <div class="login-logo">🧁</div>
+                <div class="login-logo" style="display: flex; justify-content: center; align-items: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width: 56px; height: 56px; color: var(--primary);">
+                      <path d="M5.5 15l1.5 6c.2.8.9 1.4 1.7 1.4h6.6c.8 0 1.5-.6 1.7-1.4l1.5-6" />
+                      <path d="M9 15v7" />
+                      <path d="M12 15v7" />
+                      <path d="M15 15v7" />
+                      <path d="M19.5 15c.8 0 1.5-.7 1.5-1.5 0-1-.8-1.5-1.5-1.5h-15c-.7 0-1.5.5-1.5 1.5 0 .8.7 1.5 1.5 1.5h15z" />
+                      <path d="M17.5 12c.8 0 1.5-.7 1.5-1.5 0-1.2-1-2-2-2H7c-1 0-2 .8-2 2 0 .8.7 1.5 1.5 1.5h11z" />
+                      <path d="M15 8.5c.8 0 1.5-.7 1.5-1.5 0-1.5-1.5-3-4.5-3s-4.5 1.5-4.5 3c0 .8.7 1.5 1.5 1.5h6z" />
+                      <circle cx="12" cy="3" r="1.2" fill="var(--primary)" />
+                    </svg>
+                </div>
                 <h2>Candys sweet</h2>
                 <p>Sistema de Gestión de Costos</p>
             </div>
@@ -431,7 +442,12 @@
                 <div class="form-row" style="margin-bottom: 20px; align-items: center; gap: 20px; background-color: var(--primary-light); padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
                     <div class="recipe-image-preview-container" style="position: relative; width: 120px; height: 120px; flex-shrink: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background-color: #ffffff; display: flex; align-items: center; justify-content: center;">
                         <img id="recipe-banner-preview-img" src="" alt="Vista previa del producto" style="display: none; width: 100%; height: 100%; object-fit: contain; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">
-                        <div id="recipe-banner-placeholder" class="recipe-image-placeholder" style="font-size: 32px; color: var(--primary); display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">📷</div>
+                        <div id="recipe-banner-placeholder" class="recipe-image-placeholder" style="display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 36px; height: 36px; color: var(--primary); opacity: 0.7;">
+                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </div>
                     </div>
                     <div class="form-group" style="flex: 1; margin-bottom: 0;">
                         <label for="recipe-image-input" style="font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);">Imagen del Producto</label>
