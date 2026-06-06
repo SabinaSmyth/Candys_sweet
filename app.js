@@ -267,52 +267,13 @@ function showToast(message, type = "success") {
 
 // DASHBOARD
 function renderDashboard() {
+    const ingredientsCount = state.raw_materials.filter(m => m.category !== "Packaging").length;
+    const packagingCount = state.raw_materials.filter(m => m.category === "Packaging").length;
+    
     document.getElementById("stat-total-materials").innerText = state.raw_materials.length;
+    document.getElementById("stat-total-ingredients").innerText = ingredientsCount;
+    document.getElementById("stat-total-packaging").innerText = packagingCount;
     document.getElementById("stat-total-recipes").innerText = state.recipes.length;
-    
-    // Calcular costo promedio, precio promedio y estructura de costos
-    let totalBaseCost = 0;
-    let totalFinalPrice = 0;
-    let totalIngredientsCost = 0;
-    let totalPackagingCost = 0;
-    
-    state.recipes.forEach(r => {
-        const details = getRecipeDetails(r);
-        totalBaseCost += details.baseCost;
-        totalFinalPrice += details.finalPrice;
-        totalIngredientsCost += details.ingredientsCost;
-        totalPackagingCost += details.packagingCost;
-    });
-    
-    const avgCost = state.recipes.length > 0 ? totalBaseCost / state.recipes.length : 0;
-    const avgPrice = state.recipes.length > 0 ? totalFinalPrice / state.recipes.length : 0;
-    
-    document.getElementById("stat-avg-cost").innerText = `$${avgCost.toFixed(2)}`;
-    document.getElementById("stat-avg-price").innerText = `$${avgPrice.toFixed(2)}`;
-    
-    // Calcular porcentajes de estructura de costos
-    const grandTotal = totalIngredientsCost + totalPackagingCost;
-    const ingPct = grandTotal > 0 ? (totalIngredientsCost / grandTotal) * 100 : 0;
-    const packPct = grandTotal > 0 ? (totalPackagingCost / grandTotal) * 100 : 0;
-    
-    const ingBar = document.getElementById("cost-bar-ingredients");
-    const packBar = document.getElementById("cost-bar-packaging");
-    const ingLabel = document.getElementById("cost-label-ingredients");
-    const packLabel = document.getElementById("cost-label-packaging");
-    
-    if (ingBar && packBar && ingLabel && packLabel) {
-        if (grandTotal > 0) {
-            ingBar.style.width = `${ingPct}%`;
-            packBar.style.width = `${packPct}%`;
-            ingLabel.innerHTML = `<strong>Materias Primas:</strong> ${ingPct.toFixed(1)}% ($${totalIngredientsCost.toFixed(2)})`;
-            packLabel.innerHTML = `<strong>Packaging:</strong> ${packPct.toFixed(1)}% ($${totalPackagingCost.toFixed(2)})`;
-        } else {
-            ingBar.style.width = `50%`;
-            packBar.style.width = `50%`;
-            ingLabel.innerHTML = `<strong>Materias Primas:</strong> 0% ($0.00)`;
-            packLabel.innerHTML = `<strong>Packaging:</strong> 0% ($0.00)`;
-        }
-    }
     
     // Insumos más caros
     const sortedMaterials = [...state.raw_materials]
@@ -1989,6 +1950,20 @@ function zoomCurrentRecipeImage(event) {
     }
 }
 
+function printFullCatalogFromDashboard() {
+    switchTab('catalog-tab');
+    setTimeout(() => {
+        window.print();
+    }, 150);
+}
+
+function printClientCatalogFromDashboard() {
+    switchTab('catalog-tab');
+    setTimeout(() => {
+        printClientCatalog();
+    }, 150);
+}
+
 // Hacer globales las funciones llamadas desde el HTML
 window.syncWithSupabase = syncWithSupabase;
 window.handleLoginSubmit = handleLoginSubmit;
@@ -2004,4 +1979,6 @@ window.updateSyncUI = updateSyncUI;
 window.openImageZoom = openImageZoom;
 window.closeImageZoomModal = closeImageZoomModal;
 window.zoomCurrentRecipeImage = zoomCurrentRecipeImage;
+window.printFullCatalogFromDashboard = printFullCatalogFromDashboard;
+window.printClientCatalogFromDashboard = printClientCatalogFromDashboard;
 

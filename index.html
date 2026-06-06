@@ -122,9 +122,7 @@
                 <div class="header-section">
                     <h2>Panel de Control</h2>
                     <p class="section-desc">Vista general del estado de tus costos y stock.</p>
-                </div>
-
-                <div class="stats-grid">
+                  <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon insumos">
                             <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -136,8 +134,32 @@
                             </svg>
                         </div>
                         <div class="stat-info">
-                            <span class="stat-label">Insumos Registrados</span>
+                            <span class="stat-label">Total Insumos</span>
                             <span class="stat-value" id="stat-total-materials">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon ingredientes" style="background-color: #fffbeb; color: #d97706;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                                <path d="M12 2a4 4 0 0 1 4 4c0 2.5-4 6-4 6s-4-3.5-4-4a4 4 0 0 1 4-4z" />
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Ingredientes</span>
+                            <span class="stat-value" id="stat-total-ingredients">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon packaging" style="background-color: #faf5ff; color: #9333ea;">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Packaging</span>
+                            <span class="stat-value" id="stat-total-packaging">0</span>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -155,35 +177,14 @@
                             <span class="stat-value" id="stat-total-recipes">0</span>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon costo-promedio">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-label">Costo Promedio Receta</span>
-                            <span class="stat-value" id="stat-avg-cost">$0.00</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon precio-promedio">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                                <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                            </svg>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-label">Precio Sugerido Promedio</span>
-                            <span class="stat-value" id="stat-avg-price">$0.00</span>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="dashboard-details">
-                    <div class="detail-card">
+                    <div class="detail-card card-large">
                         <h3>Acciones Rápidas</h3>
                         <div class="quick-actions">
                             <button class="action-btn" onclick="switchTab('stock-tab')">
-                                <span class="icon">+</span>
+                                <span class="icon">📦</span>
                                 <span class="label">Actualizar Precios Stock</span>
                             </button>
                             <button class="action-btn" onclick="openNewRecipeModal()">
@@ -194,24 +195,18 @@
                                 <span class="icon">📋</span>
                                 <span class="label">Ver Lista de Precios</span>
                             </button>
-                        </div>
-                    </div>
-
-                    <div class="detail-card">
-                        <h3>Estructura de Costos</h3>
-                        <div class="cost-progress-bar-container" style="height: 16px; border-radius: var(--radius-sm); overflow: hidden; display: flex; margin-bottom: 20px; background-color: #ebdcd8;">
-                            <div id="cost-bar-ingredients" style="width: 50%; background-color: var(--primary); transition: width 0.5s ease-out;" title="Materias Primas"></div>
-                            <div id="cost-bar-packaging" style="width: 50%; background-color: var(--bg-sidebar); transition: width 0.5s ease-out;" title="Packaging"></div>
-                        </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--primary);"></span>
-                                <span id="cost-label-ingredients" style="color: var(--text-main);">Materias Primas: 0% ($0.00)</span>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--bg-sidebar);"></span>
-                                <span id="cost-label-packaging" style="color: var(--text-main);">Packaging: 0% ($0.00)</span>
-                            </div>
+                            <button class="action-btn whatsapp" onclick="shareCatalogWhatsApp()">
+                                <span class="icon">💬</span>
+                                <span class="label">Compartir WhatsApp (Texto)</span>
+                            </button>
+                            <button class="action-btn pdf-full" onclick="printFullCatalogFromDashboard()">
+                                <span class="icon">📄</span>
+                                <span class="label">Imprimir Catálogo (Completo)</span>
+                            </button>
+                            <button class="action-btn pdf-client" onclick="printClientCatalogFromDashboard()">
+                                <span class="icon">👥</span>
+                                <span class="label">Imprimir Catálogo (Clientes)</span>
+                            </button>
                         </div>
                     </div>
 
