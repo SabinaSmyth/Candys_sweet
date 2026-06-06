@@ -332,18 +332,23 @@ body {
 }
 
 .stat-icon.insumos {
-    background-color: #eef2ff;
-    color: var(--primary);
+    background-color: #f5f0ee; /* Crema chocolate */
+    color: #785246; /* Chocolate */
 }
 
 .stat-icon.recetas {
-    background-color: #ecfdf5;
-    color: var(--success);
+    background-color: var(--primary-light);
+    color: var(--primary);
 }
 
 .stat-icon.costo-promedio {
-    background-color: #fef3c7;
+    background-color: #fffbeb;
     color: #d97706;
+}
+
+.stat-icon.precio-promedio {
+    background-color: #faf5ff; /* Violeta claro */
+    color: #9333ea; /* Violeta */
 }
 
 .stat-info {
@@ -367,7 +372,7 @@ body {
 /* Dashboard Details Layout */
 .dashboard-details {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
 }
 
