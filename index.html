@@ -453,7 +453,10 @@
                         <label for="recipe-image-input" style="font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);">Imagen del Producto</label>
                         <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="font-size: 12px; border: none; padding: 4px 0; background: none; width: 100%;">
                         <span class="help-text" style="display: block; margin-bottom: 8px; color: var(--text-muted);">Se comprimirá automáticamente para ahorrar espacio.</span>
-                        <button type="button" id="btn-remove-recipe-image" onclick="removeRecipeImage()" style="display: none; background: none; border: 1px solid var(--danger); color: var(--danger); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); width: fit-content;">Quitar Imagen</button>
+                        <div class="uploader-buttons" style="display: flex; gap: 8px;">
+                            <button type="button" id="btn-zoom-recipe-image" onclick="zoomCurrentRecipeImage(event)" style="display: none; background: none; border: 1px solid var(--primary); color: var(--primary); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); width: fit-content;">Vista Previa</button>
+                            <button type="button" id="btn-remove-recipe-image" onclick="removeRecipeImage()" style="display: none; background: none; border: 1px solid var(--danger); color: var(--danger); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); width: fit-content;">Quitar Imagen</button>
+                        </div>
                     </div>
                 </div>
                 
@@ -600,7 +603,7 @@
         <div class="modal-content" style="max-width: 90vw; background: transparent; box-shadow: none; border: none; align-items: center; justify-content: center;" onclick="event.stopPropagation()">
             <div style="position: relative; display: flex; flex-direction: column; align-items: center; width: fit-content; max-width: 100%;">
                 <button onclick="closeImageZoomModal()" style="position: absolute; top: -15px; right: -15px; background: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); color: var(--text-main); transition: var(--transition); z-index: 10;">&times;</button>
-                <img id="image-zoom-content" src="" alt="Vista ampliada" style="max-width: 85vw; max-height: 70vh; border-radius: var(--radius-lg); border: 4px solid white; box-shadow: var(--shadow-lg); object-fit: contain; background-color: #ffffff; display: block;">
+                <img id="image-zoom-content" src="" alt="Vista ampliada" style="width: 85vw; max-width: 550px; height: 85vw; max-height: 550px; border-radius: var(--radius-lg); border: 4px solid white; box-shadow: var(--shadow-lg); object-fit: contain; background-color: #ffffff; display: block;">
                 <h3 id="image-zoom-title" style="color: white; margin-top: 15px; text-align: center; font-size: 20px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.6); width: 100%;"></h3>
             </div>
         </div>

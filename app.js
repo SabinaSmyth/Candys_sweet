@@ -797,6 +797,8 @@ function openRecipeModal(index = -1) {
     
     const previewImg = document.getElementById("recipe-banner-preview-img");
     const placeholder = document.getElementById("recipe-banner-placeholder");
+    const btnRemove = document.getElementById("btn-remove-recipe-image");
+    const btnZoom = document.getElementById("btn-zoom-recipe-image");
     
     if (tempRecipe.image) {
         if (previewImg) {
@@ -804,12 +806,16 @@ function openRecipeModal(index = -1) {
             previewImg.style.display = "block";
         }
         if (placeholder) placeholder.style.display = "none";
+        if (btnRemove) btnRemove.style.display = "inline-block";
+        if (btnZoom) btnZoom.style.display = "inline-block";
     } else {
         if (previewImg) {
             previewImg.src = "";
             previewImg.style.display = "none";
         }
         if (placeholder) placeholder.style.display = "flex";
+        if (btnRemove) btnRemove.style.display = "none";
+        if (btnZoom) btnZoom.style.display = "none";
     }
     
     recalcModalRecipe();
@@ -1240,12 +1246,16 @@ function handleRecipeImageUpload(event) {
             // Actualizar vista previa en el modal
             const previewImg = document.getElementById("recipe-banner-preview-img");
             const placeholder = document.getElementById("recipe-banner-placeholder");
+            const btnRemove = document.getElementById("btn-remove-recipe-image");
+            const btnZoom = document.getElementById("btn-zoom-recipe-image");
             
             if (previewImg) {
                 previewImg.src = dataUrl;
                 previewImg.style.display = "block";
             }
             if (placeholder) placeholder.style.display = "none";
+            if (btnRemove) btnRemove.style.display = "inline-block";
+            if (btnZoom) btnZoom.style.display = "inline-block";
         };
         img.onerror = function() {
             alert("Error al cargar la imagen. Por favor, asegúrate de subir un archivo de imagen válido.");
@@ -1685,6 +1695,8 @@ function removeRecipeImage() {
     const previewImg = document.getElementById("recipe-banner-preview-img");
     const placeholder = document.getElementById("recipe-banner-placeholder");
     const imgInput = document.getElementById("recipe-image-input");
+    const btnRemove = document.getElementById("btn-remove-recipe-image");
+    const btnZoom = document.getElementById("btn-zoom-recipe-image");
     
     if (previewImg) {
         previewImg.src = "";
@@ -1696,6 +1708,8 @@ function removeRecipeImage() {
     if (imgInput) {
         imgInput.value = "";
     }
+    if (btnRemove) btnRemove.style.display = "none";
+    if (btnZoom) btnZoom.style.display = "none";
 }
 
 // INGRESO Y RECONEXIÓN OFFLINE
@@ -1929,6 +1943,16 @@ function closeImageZoomModal() {
     }
 }
 
+function zoomCurrentRecipeImage(event) {
+    if (event) event.stopPropagation();
+    const previewImg = document.getElementById("recipe-banner-preview-img");
+    const nameInput = document.getElementById("recipe-name");
+    if (previewImg && previewImg.src && !previewImg.src.endsWith("/")) {
+        const name = nameInput ? nameInput.value || "Vista previa de la receta" : "Vista previa de la receta";
+        openImageZoom(event, previewImg.src, name);
+    }
+}
+
 // Hacer globales las funciones llamadas desde el HTML
 window.syncWithSupabase = syncWithSupabase;
 window.handleLoginSubmit = handleLoginSubmit;
@@ -1943,4 +1967,5 @@ window.uploadLocalDataToCloud = uploadLocalDataToCloud;
 window.updateSyncUI = updateSyncUI;
 window.openImageZoom = openImageZoom;
 window.closeImageZoomModal = closeImageZoomModal;
+window.zoomCurrentRecipeImage = zoomCurrentRecipeImage;
 
