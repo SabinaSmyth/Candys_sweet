@@ -1309,30 +1309,38 @@ input:focus, select:focus {
     height: 40px;
     border-radius: var(--radius-sm);
     object-fit: cover;
-    background-color: #f3f4f6;
+    background-color: var(--primary-light);
     border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.recipe-card-thumb:hover {
+    transform: scale(1.08);
 }
 
 .recipe-card-thumb-placeholder {
     width: 40px;
     height: 40px;
     border-radius: var(--radius-sm);
-    background-color: #f3f4f6;
+    background-color: var(--primary-light);
     border: 1px dashed var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: var(--primary);
     font-size: 14px;
 }
 
 .recipe-card-grid-img-container {
     width: 100%;
-    height: 120px;
-    margin-bottom: 12px;
-    border-radius: var(--radius-sm);
+    height: 160px;
+    margin-bottom: 16px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid var(--border-color);
+    position: relative;
+    background-color: var(--primary-light);
 }
 
 .recipe-card-grid-img {
@@ -1342,19 +1350,42 @@ input:focus, select:focus {
     transition: var(--transition);
 }
 
-.recipe-card:hover .recipe-card-grid-img {
+.recipe-card-grid-img-container:hover .recipe-card-grid-img {
     transform: scale(1.05);
 }
 
 .recipe-card-grid-img-placeholder {
     width: 100%;
     height: 100%;
-    background-color: #f3f4f6;
+    background-color: var(--primary-light);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
-    font-size: 28px;
+    color: var(--primary);
+    font-size: 36px;
+    opacity: 0.8;
+}
+
+.recipe-card-img-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(45, 32, 28, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.recipe-card-grid-img-container:hover .recipe-card-img-overlay {
+    opacity: 1;
+    cursor: pointer;
 }
 
 .recipe-image-preview-container {

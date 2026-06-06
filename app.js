@@ -380,10 +380,14 @@ function renderRecipesGrid(filtered = null) {
         
         if (viewMode === "list") {
             // Modo Lista: Filas horizontales muy compactas, sin fotos y sin listas de ingredientes largas
+            const thumbHtml = r.image 
+                ? `<img src="${r.image}" class="recipe-card-thumb" alt="${r.name}" onclick="openImageZoom(event, '${r.image}', '${r.name.replace(/'/g, "\\'")}')">`
+                : `<div class="recipe-card-thumb-placeholder">🧁</div>`;
+                
             card.innerHTML = `
                 <div style="display:flex; align-items:center; gap:12px; flex:2; min-width:180px; overflow:hidden;">
                     <div class="recipe-card-thumb-container">
-                        <div class="recipe-card-thumb-placeholder" style="font-size:12px;">🍳</div>
+                        ${thumbHtml}
                     </div>
                     <h3 style="font-size:14px; margin:0; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${r.name}</h3>
                 </div>
@@ -421,14 +425,17 @@ function renderRecipesGrid(filtered = null) {
             let imgHtml = "";
             if (r.image) {
                 imgHtml = `
-                    <div class="recipe-card-grid-img-container" style="height:150px;">
+                    <div class="recipe-card-grid-img-container" style="height: 160px;" onclick="openImageZoom(event, '${r.image}', '${r.name.replace(/'/g, "\\'")}')">
                         <img src="${r.image}" class="recipe-card-grid-img" alt="${r.name}">
+                        <div class="recipe-card-img-overlay">
+                            <span>🔍 Ampliar</span>
+                        </div>
                     </div>
                 `;
             } else {
                 imgHtml = `
-                    <div class="recipe-card-grid-img-container" style="height: 60px;">
-                        <div class="recipe-card-grid-img-placeholder" style="font-size: 20px;">🍳</div>
+                    <div class="recipe-card-grid-img-container" style="height: 160px;">
+                        <div class="recipe-card-grid-img-placeholder">🧁</div>
                     </div>
                 `;
             }
@@ -468,14 +475,17 @@ function renderRecipesGrid(filtered = null) {
             let imgHtml = "";
             if (r.image) {
                 imgHtml = `
-                    <div class="recipe-card-grid-img-container">
+                    <div class="recipe-card-grid-img-container" onclick="openImageZoom(event, '${r.image}', '${r.name.replace(/'/g, "\\'")}')">
                         <img src="${r.image}" class="recipe-card-grid-img" alt="${r.name}">
+                        <div class="recipe-card-img-overlay">
+                            <span>🔍 Ampliar</span>
+                        </div>
                     </div>
                 `;
             } else {
                 imgHtml = `
-                    <div class="recipe-card-grid-img-container" style="height: 60px;">
-                        <div class="recipe-card-grid-img-placeholder" style="font-size: 20px;">🍳</div>
+                    <div class="recipe-card-grid-img-container">
+                        <div class="recipe-card-grid-img-placeholder">🧁</div>
                     </div>
                 `;
             }
@@ -752,19 +762,18 @@ function openRecipeModal(index = -1) {
     const imgInput = document.getElementById("recipe-image-input");
     if (imgInput) imgInput.value = "";
     
-    const preview = document.getElementById("recipe-modal-image-preview");
-    const placeholder = document.getElementById("recipe-modal-image-placeholder");
-    const removeBtn = document.getElementById("btn-remove-recipe-image");
+    const previewWrapper = document.getElementById("recipe-banner-preview-wrapper");
+    const previewImg = document.getElementById("recipe-banner-preview-img");
+    const placeholder = document.getElementById("recipe-banner-placeholder");
+    
     if (tempRecipe.image) {
-        preview.src = tempRecipe.image;
-        preview.style.display = "block";
-        placeholder.style.display = "none";
-        if (removeBtn) removeBtn.style.display = "inline-block";
+        if (previewImg) previewImg.src = tempRecipe.image;
+        if (previewWrapper) previewWrapper.style.display = "block";
+        if (placeholder) placeholder.style.display = "none";
     } else {
-        preview.src = "";
-        preview.style.display = "none";
-        placeholder.style.display = "flex";
-        if (removeBtn) removeBtn.style.display = "none";
+        if (previewImg) previewImg.src = "";
+        if (previewWrapper) previewWrapper.style.display = "none";
+        if (placeholder) placeholder.style.display = "flex";
     }
     
     recalcModalRecipe();
@@ -1193,13 +1202,13 @@ function handleRecipeImageUpload(event) {
             tempRecipe.image = dataUrl;
             
             // Actualizar vista previa en el modal
-            const preview = document.getElementById("recipe-modal-image-preview");
-            const placeholder = document.getElementById("recipe-modal-image-placeholder");
-            const removeBtn = document.getElementById("btn-remove-recipe-image");
-            preview.src = dataUrl;
-            preview.style.display = "block";
-            placeholder.style.display = "none";
-            if (removeBtn) removeBtn.style.display = "inline-block";
+            const previewWrapper = document.getElementById("recipe-banner-preview-wrapper");
+            const previewImg = document.getElementById("recipe-banner-preview-img");
+            const placeholder = document.getElementById("recipe-banner-placeholder");
+            
+            if (previewImg) previewImg.src = dataUrl;
+            if (previewWrapper) previewWrapper.style.display = "block";
+            if (placeholder) placeholder.style.display = "none";
         };
         img.onerror = function() {
             alert("Error al cargar la imagen. Por favor, asegúrate de subir un archivo de imagen válido.");
@@ -1636,20 +1645,19 @@ function setupRealtimeSubscription() {
 function removeRecipeImage() {
     tempRecipe.image = null;
     
-    const preview = document.getElementById("recipe-modal-image-preview");
-    const placeholder = document.getElementById("recipe-modal-image-placeholder");
-    const removeBtn = document.getElementById("btn-remove-recipe-image");
+    const previewWrapper = document.getElementById("recipe-banner-preview-wrapper");
+    const previewImg = document.getElementById("recipe-banner-preview-img");
+    const placeholder = document.getElementById("recipe-banner-placeholder");
     const imgInput = document.getElementById("recipe-image-input");
     
-    if (preview) {
-        preview.src = "";
-        preview.style.display = "none";
+    if (previewImg) {
+        previewImg.src = "";
+    }
+    if (previewWrapper) {
+        previewWrapper.style.display = "none";
     }
     if (placeholder) {
         placeholder.style.display = "flex";
-    }
-    if (removeBtn) {
-        removeBtn.style.display = "none";
     }
     if (imgInput) {
         imgInput.value = "";
@@ -1865,6 +1873,28 @@ function updateSyncUI() {
     }
 }
 
+// MODAL DE ZOOM DE IMAGEN
+function openImageZoom(event, src, name) {
+    if (event) event.stopPropagation(); // Evitar abrir el modal de edición
+    
+    const zoomModal = document.getElementById("image-zoom-modal");
+    const zoomImg = document.getElementById("image-zoom-content");
+    const zoomTitle = document.getElementById("image-zoom-title");
+    
+    if (zoomModal && zoomImg && zoomTitle) {
+        zoomImg.src = src;
+        zoomTitle.innerText = name;
+        zoomModal.style.display = "flex";
+    }
+}
+
+function closeImageZoomModal() {
+    const zoomModal = document.getElementById("image-zoom-modal");
+    if (zoomModal) {
+        zoomModal.style.display = "none";
+    }
+}
+
 // Hacer globales las funciones llamadas desde el HTML
 window.syncWithSupabase = syncWithSupabase;
 window.handleLoginSubmit = handleLoginSubmit;
@@ -1877,4 +1907,6 @@ window.shareCatalogWhatsApp = shareCatalogWhatsApp;
 window.removeRecipeImage = removeRecipeImage;
 window.uploadLocalDataToCloud = uploadLocalDataToCloud;
 window.updateSyncUI = updateSyncUI;
+window.openImageZoom = openImageZoom;
+window.closeImageZoomModal = closeImageZoomModal;
 

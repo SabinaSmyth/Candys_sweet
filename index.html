@@ -427,6 +427,23 @@
             <div class="recipe-modal-body">
                 <input type="hidden" id="edit-recipe-index">
                 
+                <!-- Premium Image Banner Preview & Upload Area -->
+                <div class="recipe-modal-banner-container" style="margin-bottom: 20px;">
+                    <div id="recipe-banner-placeholder" class="recipe-banner-placeholder" onclick="document.getElementById('recipe-image-input').click()" style="width: 100%; height: 160px; background-color: var(--primary-light); border: 2px dashed var(--primary); border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--primary); cursor: pointer; gap: 8px; transition: var(--transition); text-align: center;">
+                        <span style="font-size: 36px;">📷</span>
+                        <span style="font-size: 14px; font-weight: 700;">Subir Imagen de Producto</span>
+                        <span style="font-size: 11px; color: var(--text-muted);">Haz clic aquí para seleccionar o cambiar la foto (se comprimirá automáticamente)</span>
+                    </div>
+                    <div id="recipe-banner-preview-wrapper" style="display: none; position: relative; width: 100%; height: 160px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background-color: #f3f4f6;">
+                        <img id="recipe-banner-preview-img" src="" alt="Vista previa del producto" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">
+                        <div class="recipe-banner-overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 8px; background: linear-gradient(transparent, rgba(0,0,0,0.6)); display: flex; justify-content: space-between; align-items: center; color: white;">
+                            <span style="font-size: 11px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Haz clic en la imagen para cambiarla</span>
+                            <button type="button" onclick="removeRecipeImage()" style="background: var(--danger); border: none; color: white; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition);">Quitar Imagen</button>
+                        </div>
+                    </div>
+                    <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="display: none;">
+                </div>
+                
                 <!-- Basic Info -->
                 <div class="recipe-basic-info form-row">
                     <div class="form-group flex-2">
@@ -445,21 +462,6 @@
                     </div>
                 </div>
 
-                <!-- Image Uploader Form Row -->
-                <div class="form-row" style="margin-bottom:16px;">
-                    <div class="form-group flex-2" style="flex-direction: row; align-items: center; gap: 16px;">
-                        <div class="recipe-image-preview-container">
-                            <img id="recipe-modal-image-preview" src="" alt="" style="display:none; width: 64px; height: 64px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                            <div id="recipe-modal-image-placeholder" class="recipe-image-placeholder" style="width: 64px; height: 64px; background-color: #f3f4f6; border-radius: var(--radius-sm); border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 20px;">📷</div>
-                        </div>
-                        <div class="form-group" style="flex:1;">
-                            <label for="recipe-image-input">Imagen del Producto (Celular o PC)</label>
-                            <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="font-size: 12px; border:none; padding:4px 0; background:none;">
-                            <span class="help-text" style="margin-bottom: 4px;">Se comprimirá automáticamente para ahorrar espacio.</span>
-                            <button type="button" id="btn-remove-recipe-image" onclick="removeRecipeImage()" style="display:none; font-size: 11px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--danger); color: var(--danger); background: none; cursor: pointer; transition: var(--transition); width: fit-content;">Quitar Imagen</button>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="recipe-sections-grid">
                     <!-- Ingredients Table -->
@@ -577,6 +579,17 @@
                 </div>
                 <button class="btn btn-primary btn-full" type="button" onclick="confirmItemPick()">Confirmar y Añadir</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Full Screen Image Preview -->
+    <div class="modal" id="image-zoom-modal" onclick="closeImageZoomModal()" style="display: none; align-items: center; justify-content: center; background-color: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);">
+        <div class="modal-content" style="max-width: 650px; background: transparent; box-shadow: none; border: none; align-items: center; justify-content: center; position: relative;" onclick="event.stopPropagation()">
+            <button onclick="closeImageZoomModal()" style="position: absolute; top: -15px; right: -15px; background: white; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); color: var(--text-main); transition: var(--transition); z-index: 10;">&times;</button>
+            <div style="width: 100%; border-radius: var(--radius-lg); overflow: hidden; border: 3px solid white; box-shadow: var(--shadow-lg); background-color: #000000; display: flex; justify-content: center; align-items: center;">
+                <img id="image-zoom-content" src="" alt="Vista ampliada" style="max-width: 100%; max-height: 75vh; object-fit: contain;">
+            </div>
+            <h3 id="image-zoom-title" style="color: white; margin-top: 15px; text-align: center; font-size: 20px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.6);"></h3>
         </div>
     </div>
 
