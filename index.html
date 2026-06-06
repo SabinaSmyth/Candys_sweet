@@ -37,6 +37,10 @@
                 </div>
                 <div id="login-error-msg" class="login-error" style="display: none;">Contraseña incorrecta. Inténtalo de nuevo.</div>
                 <button type="submit" class="btn btn-primary btn-full" id="btn-login-submit" style="width: 100%;">Ingresar</button>
+                <div id="offline-login-container" style="display: none; margin-top: 15px; text-align: center; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 15px;">
+                    <p style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 10px;">¿No tienes conexión a internet?</p>
+                    <button type="button" class="btn btn-secondary btn-full" id="btn-login-offline" onclick="enterOfflineMode()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">Trabajar sin Conexión</button>
+                </div>
             </form>
         </div>
     </div>
@@ -85,6 +89,15 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
+            <!-- Offline Mode Alert Banner -->
+            <div id="offline-banner" class="offline-banner" style="display: none;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span>⚠️</span>
+                    <span>Trabajando en <strong>Modo sin Conexión</strong>. Los cambios se guardarán localmente en este navegador.</span>
+                </div>
+                <button type="button" onclick="attemptReconnect()" class="btn btn-secondary btn-small" style="font-size: 11px; padding: 4px 8px;">Iniciar Sesión / Sincronizar</button>
+            </div>
+
             <!-- Top Mobile Bar -->
             <header class="mobile-header">
                 <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menú">
@@ -245,7 +258,13 @@
                         <h2>Lista de Precios al Público</h2>
                         <p class="section-desc">Catálogo simplificado de tus productos finales con su costo, margen y precio de venta.</p>
                     </div>
-                    <div style="display:flex; gap:12px;">
+                    <div style="display:flex; gap:12px; flex-wrap: wrap;">
+                        <button class="btn btn-whatsapp" onclick="shareCatalogWhatsApp()">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                            Compartir Catálogo
+                        </button>
                         <button class="btn btn-secondary" onclick="printClientCatalog()">
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                             Imprimir para Clientes
@@ -280,6 +299,7 @@
                                 <th class="text-right hide-client-print">Rendimiento (Ganancia)</th>
                                 <th class="text-right highlight-header">Precio Final de Venta</th>
                                 <th class="text-right text-success-header no-print hide-client-print">Ganancia Estimada</th>
+                                <th class="text-center no-print">Compartir</th>
                             </tr>
                         </thead>
                         <tbody id="catalog-table-body">
@@ -432,7 +452,8 @@
                         <div class="form-group" style="flex:1;">
                             <label for="recipe-image-input">Imagen del Producto (Celular o PC)</label>
                             <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="font-size: 12px; border:none; padding:4px 0; background:none;">
-                            <span class="help-text">Se comprimirá automáticamente para ahorrar espacio.</span>
+                            <span class="help-text" style="margin-bottom: 4px;">Se comprimirá automáticamente para ahorrar espacio.</span>
+                            <button type="button" id="btn-remove-recipe-image" onclick="removeRecipeImage()" style="display:none; font-size: 11px; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--danger); color: var(--danger); background: none; cursor: pointer; transition: var(--transition); width: fit-content;">Quitar Imagen</button>
                         </div>
                     </div>
                 </div>

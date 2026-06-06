@@ -1526,3 +1526,46 @@ input:focus, select:focus {
     margin-bottom: 15px;
     text-align: center;
 }
+
+/* Offline Mode Banner Styles */
+.offline-banner {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 12px;
+    flex-wrap: wrap;
+    animation: fadeIn 0.3s ease;
+}
+
+.offline-banner button {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    transition: var(--transition);
+}
+
+.offline-banner button:hover {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 576px) {
+    .offline-banner {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+    .offline-banner button {
+        width: 100%;
+    }
+}
+

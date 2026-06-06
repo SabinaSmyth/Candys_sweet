@@ -54,6 +54,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (usernameInput) usernameInput.value = savedUsername;
     }
     
+    // Si hay datos en el localStorage, siempre mostrar la opción de ingresar sin conexión por defecto
+    if (localStorage.getItem("sabi_data")) {
+        const offlineContainer = document.getElementById("offline-login-container");
+        if (offlineContainer) offlineContainer.style.display = "block";
+    }
+    
     if (savedUsername && savedPassword) {
         if (overlay) overlay.style.display = "flex";
         const loggedIn = await attemptLogin(savedUsername, savedPassword, true);
@@ -529,6 +535,13 @@ function renderCatalogTable(filtered = null) {
             <td class="text-right hide-client-print">x${(1 + r.margin).toFixed(2)}</td>
             <td class="text-right highlight-header" style="font-size:16px; font-weight:800;">$${d.finalPrice.toFixed(2)}</td>
             <td class="text-right text-success no-print hide-client-print" style="font-weight:700;">$${d.netProfit.toFixed(2)}</td>
+            <td class="text-center no-print">
+                <button class="btn-whatsapp-icon" onclick="shareProductWhatsApp('${r.name.replace(/'/g, "\\'")}', ${d.finalPrice})" title="Compartir precio por WhatsApp">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                    </svg>
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -734,14 +747,17 @@ function openRecipeModal(index = -1) {
     
     const preview = document.getElementById("recipe-modal-image-preview");
     const placeholder = document.getElementById("recipe-modal-image-placeholder");
+    const removeBtn = document.getElementById("btn-remove-recipe-image");
     if (tempRecipe.image) {
         preview.src = tempRecipe.image;
         preview.style.display = "block";
         placeholder.style.display = "none";
+        if (removeBtn) removeBtn.style.display = "inline-block";
     } else {
         preview.src = "";
         preview.style.display = "none";
         placeholder.style.display = "flex";
+        if (removeBtn) removeBtn.style.display = "none";
     }
     
     recalcModalRecipe();
@@ -966,7 +982,9 @@ function saveRecipeForm() {
         return;
     }
     
+    let originalName = "";
     if (index >= 0) {
+        originalName = state.recipes[index].name;
         // Editar existente
         state.recipes[index] = JSON.parse(JSON.stringify(tempRecipe));
         showToast("Receta actualizada con éxito.");
@@ -979,7 +997,7 @@ function saveRecipeForm() {
     saveState();
     
     // Sincronizar con la nube
-    saveRecipeToCloud(tempRecipe);
+    saveRecipeToCloud(tempRecipe, originalName);
     
     closeRecipeModal();
     
@@ -1153,7 +1171,7 @@ function handleRecipeImageUpload(event) {
             } else {
                 if (height > max_size) {
                     width *= max_size / height;
-                    width = max_size;
+                    height = max_size;
                 }
             }
             
@@ -1170,9 +1188,14 @@ function handleRecipeImageUpload(event) {
             // Actualizar vista previa en el modal
             const preview = document.getElementById("recipe-modal-image-preview");
             const placeholder = document.getElementById("recipe-modal-image-placeholder");
+            const removeBtn = document.getElementById("btn-remove-recipe-image");
             preview.src = dataUrl;
             preview.style.display = "block";
             placeholder.style.display = "none";
+            if (removeBtn) removeBtn.style.display = "inline-block";
+        };
+        img.onerror = function() {
+            alert("Error al cargar la imagen. Por favor, asegúrate de subir un archivo de imagen válido.");
         };
         img.src = e.target.result;
     };
@@ -1255,6 +1278,12 @@ async function attemptLogin(username, password, remember = false) {
             errorMsg.style.display = "block";
         }
         if (overlay) overlay.style.display = "flex";
+        
+        // Mostrar opción offline si hay error de red o de login
+        const offlineContainer = document.getElementById("offline-login-container");
+        if (offlineContainer) {
+            offlineContainer.style.display = "block";
+        }
         
         // Si el login automático falló, no borramos el username pero sí la contraseña
         localStorage.removeItem("candys_password");
@@ -1430,20 +1459,37 @@ async function deleteMaterialFromCloud(name) {
     }
 }
 
-async function saveRecipeToCloud(recipe) {
+async function saveRecipeToCloud(recipe, originalName) {
     if (!supabaseClient) return;
     
     try {
-        const { data: recipeData, error: recipeError } = await supabaseClient
-            .from('recipes')
-            .upsert({
-                name: recipe.name,
-                sheet_name: recipe.sheet_name || recipe.name,
-                extra_expenses: recipe.extra_expenses,
-                margin: recipe.margin,
-                image: recipe.image || null
-            }, { onConflict: 'name' })
-            .select();
+        let recipeData = null;
+        let recipeError = null;
+        
+        const recipeBody = {
+            name: recipe.name,
+            sheet_name: recipe.sheet_name || recipe.name,
+            extra_expenses: recipe.extra_expenses,
+            margin: recipe.margin,
+            image: recipe.image || null
+        };
+        
+        if (originalName && originalName.toUpperCase() !== recipe.name.toUpperCase()) {
+            const { data, error } = await supabaseClient
+                .from('recipes')
+                .update(recipeBody)
+                .eq('name', originalName.toUpperCase())
+                .select();
+            recipeData = data;
+            recipeError = error;
+        } else {
+            const { data, error } = await supabaseClient
+                .from('recipes')
+                .upsert(recipeBody, { onConflict: 'name' })
+                .select();
+            recipeData = data;
+            recipeError = error;
+        }
             
         if (recipeError) throw recipeError;
         if (!recipeData || recipeData.length === 0) throw new Error("No retornó datos al guardar la receta");
@@ -1537,9 +1583,113 @@ function setupRealtimeSubscription() {
         });
 }
 
+// MODAL RECETAS - QUITAR IMAGEN
+function removeRecipeImage() {
+    tempRecipe.image = null;
+    
+    const preview = document.getElementById("recipe-modal-image-preview");
+    const placeholder = document.getElementById("recipe-modal-image-placeholder");
+    const removeBtn = document.getElementById("btn-remove-recipe-image");
+    const imgInput = document.getElementById("recipe-image-input");
+    
+    if (preview) {
+        preview.src = "";
+        preview.style.display = "none";
+    }
+    if (placeholder) {
+        placeholder.style.display = "flex";
+    }
+    if (removeBtn) {
+        removeBtn.style.display = "none";
+    }
+    if (imgInput) {
+        imgInput.value = "";
+    }
+}
+
+// INGRESO Y RECONEXIÓN OFFLINE
+function enterOfflineMode() {
+    const overlay = document.getElementById("login-overlay");
+    if (overlay) overlay.style.display = "none";
+    
+    const statusText = document.getElementById("supabase-status-text");
+    const syncBtn = document.getElementById("btn-sync-supabase");
+    const logoutBtn = document.getElementById("btn-logout");
+    
+    if (statusText) {
+        statusText.innerText = "Sin Conexión (Local)";
+        statusText.style.color = "var(--danger)";
+    }
+    if (syncBtn) syncBtn.style.display = "none";
+    if (logoutBtn) logoutBtn.style.display = "inline-flex";
+    
+    const offlineBanner = document.getElementById("offline-banner");
+    if (offlineBanner) {
+        offlineBanner.style.display = "flex";
+    }
+    
+    showToast("Ingresado en Modo sin Conexión.", "error");
+}
+
+function attemptReconnect() {
+    const overlay = document.getElementById("login-overlay");
+    if (overlay) {
+        overlay.style.display = "flex";
+        const errorMsg = document.getElementById("login-error-msg");
+        if (errorMsg) errorMsg.style.display = "none";
+    }
+}
+
+// INTEGRACIÓN CON WHATSAPP
+function shareProductWhatsApp(productName, price) {
+    const text = `🧁 *Candys sweet* 🧁\n\nEl precio de *${productName}* es de *$${parseFloat(price).toFixed(2)}*.`;
+    const encodedText = encodeURIComponent(text);
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Mensaje copiado al portapapeles.");
+    }).catch(err => {
+        console.error("No se pudo copiar el texto: ", err);
+    });
+    
+    const url = `https://wa.me/?text=${encodedText}`;
+    window.open(url, '_blank');
+}
+
+function shareCatalogWhatsApp() {
+    if (state.recipes.length === 0) {
+        alert("No hay productos cargados en el catálogo para compartir.");
+        return;
+    }
+    
+    let text = `🧁 *Candys sweet - Lista de Precios* 🧁\n\n`;
+    const sortedRecipes = [...state.recipes].sort((a, b) => a.name.localeCompare(b.name));
+    
+    sortedRecipes.forEach(r => {
+        const d = getRecipeDetails(r);
+        text += `• *${r.name}*: $${d.finalPrice.toFixed(2)}\n`;
+    });
+    
+    text += `\n_Precios válidos al ${new Date().toLocaleDateString()}_`;
+    const encodedText = encodeURIComponent(text);
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showToast("Catálogo copiado al portapapeles.");
+    }).catch(err => {
+        console.error("No se pudo copiar el texto: ", err);
+    });
+    
+    const url = `https://wa.me/?text=${encodedText}`;
+    window.open(url, '_blank');
+}
+
 // Hacer globales las funciones llamadas desde el HTML
 window.syncWithSupabase = syncWithSupabase;
 window.handleLoginSubmit = handleLoginSubmit;
 window.toggleLoginPassword = toggleLoginPassword;
 window.logout = logout;
+window.enterOfflineMode = enterOfflineMode;
+window.attemptReconnect = attemptReconnect;
+window.shareProductWhatsApp = shareProductWhatsApp;
+window.shareCatalogWhatsApp = shareCatalogWhatsApp;
+window.removeRecipeImage = removeRecipeImage;
 
