@@ -872,7 +872,7 @@ input:focus, select:focus {
 
 /* Cost Summary Card inside Modal */
 .cost-summary-card {
-    background-color: #0f172a;
+    background-color: #241815; /* Chocolate oscuro profundo */
     color: #ffffff;
     padding: 20px;
     border-radius: var(--radius-md);
@@ -880,6 +880,7 @@ input:focus, select:focus {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
+    border: 1px solid #382823;
 }
 
 .cost-summary-card .summary-item {
@@ -890,7 +891,7 @@ input:focus, select:focus {
 
 .cost-summary-card .summary-item .label {
     font-size: 11px;
-    color: #94a3b8;
+    color: #a89790; /* Tono cálido muted */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -899,34 +900,35 @@ input:focus, select:focus {
     font-size: 18px;
     font-weight: 700;
     margin-top: 4px;
+    color: #ffffff;
 }
 
 .cost-summary-card .summary-item.total {
-    border-left: 2px solid var(--primary);
+    border-left: 3px solid var(--primary);
     padding-left: 16px;
 }
 
 .cost-summary-card .summary-item.total .label {
-    color: #818cf8;
+    color: #f472b6; /* Rosa suave a juego con var(--primary) */
 }
 
 .cost-summary-card .summary-item.total .value {
     font-size: 24px;
-    color: #a5b4fc;
+    color: #ffffff;
 }
 
 .cost-summary-card .summary-item.ganancia {
-    border-left: 2px solid var(--success);
+    border-left: 3px solid #4ade80; /* Verde éxito brillante y cálido */
     padding-left: 16px;
 }
 
 .cost-summary-card .summary-item.ganancia .label {
-    color: #34d399;
+    color: #a7f3d0; /* Verde menta suave */
 }
 
 .cost-summary-card .summary-item.ganancia .value {
     font-size: 24px;
-    color: #34d399;
+    color: #4ade80; /* Verde éxito */
 }
 
 /* Item Picker Modal Details */
