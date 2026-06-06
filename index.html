@@ -427,21 +427,18 @@
             <div class="recipe-modal-body">
                 <input type="hidden" id="edit-recipe-index">
                 
-                <!-- Premium Image Banner Preview & Upload Area -->
-                <div class="recipe-modal-banner-container" style="margin-bottom: 20px;">
-                    <div id="recipe-banner-placeholder" class="recipe-banner-placeholder" onclick="document.getElementById('recipe-image-input').click()" style="width: 100%; height: 160px; background-color: var(--primary-light); border: 2px dashed var(--primary); border-radius: var(--radius-md); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--primary); cursor: pointer; gap: 8px; transition: var(--transition); text-align: center;">
-                        <span style="font-size: 36px;">📷</span>
-                        <span style="font-size: 14px; font-weight: 700;">Subir Imagen de Producto</span>
-                        <span style="font-size: 11px; color: var(--text-muted);">Haz clic aquí para seleccionar o cambiar la foto (se comprimirá automáticamente)</span>
+                <!-- Image Uploader Form Row -->
+                <div class="form-row" style="margin-bottom: 20px; align-items: center; gap: 20px; background-color: var(--primary-light); padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                    <div class="recipe-image-preview-container" style="position: relative; width: 120px; height: 120px; flex-shrink: 0; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background-color: #ffffff; display: flex; align-items: center; justify-content: center;">
+                        <img id="recipe-banner-preview-img" src="" alt="Vista previa del producto" style="display: none; width: 100%; height: 100%; object-fit: contain; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">
+                        <div id="recipe-banner-placeholder" class="recipe-image-placeholder" style="font-size: 32px; color: var(--primary); display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">📷</div>
                     </div>
-                    <div id="recipe-banner-preview-wrapper" style="display: none; position: relative; width: 100%; height: 160px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background-color: #f3f4f6;">
-                        <img id="recipe-banner-preview-img" src="" alt="Vista previa del producto" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="document.getElementById('recipe-image-input').click()">
-                        <div class="recipe-banner-overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; padding: 8px; background: linear-gradient(transparent, rgba(0,0,0,0.6)); display: flex; justify-content: space-between; align-items: center; color: white;">
-                            <span style="font-size: 11px; font-weight: 500; text-shadow: 0 1px 2px rgba(0,0,0,0.5);">Haz clic en la imagen para cambiarla</span>
-                            <button type="button" onclick="removeRecipeImage()" style="background: var(--danger); border: none; color: white; padding: 4px 8px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition);">Quitar Imagen</button>
-                        </div>
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="recipe-image-input" style="font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--text-main);">Imagen del Producto</label>
+                        <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="font-size: 12px; border: none; padding: 4px 0; background: none; width: 100%;">
+                        <span class="help-text" style="display: block; margin-bottom: 8px; color: var(--text-muted);">Se comprimirá automáticamente para ahorrar espacio.</span>
+                        <button type="button" id="btn-remove-recipe-image" onclick="removeRecipeImage()" style="display: none; background: none; border: 1px solid var(--danger); color: var(--danger); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: var(--transition); width: fit-content;">Quitar Imagen</button>
                     </div>
-                    <input type="file" id="recipe-image-input" accept="image/*" onchange="handleRecipeImageUpload(event)" style="display: none;">
                 </div>
                 
                 <!-- Basic Info -->
