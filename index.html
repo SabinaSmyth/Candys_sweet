@@ -340,8 +340,11 @@
                         <h3>Sincronización en la Nube (Supabase)</h3>
                         <p>El sistema se conecta automáticamente a la base de datos de Supabase configurada en Vercel para mantener toda la información sincronizada en tiempo real entre múltiples dispositivos.</p>
                         
-                        <div id="supabase-status-indicator" style="margin: 10px 0; font-size: 16px; font-weight: 600; color: var(--text-main);">
+                        <div id="supabase-status-indicator" style="margin: 10px 0 5px 0; font-size: 16px; font-weight: 600; color: var(--text-main);">
                             Estado: <span id="supabase-status-text" style="color: var(--danger); font-weight: bold;">Cargando configuración...</span>
+                        </div>
+                        <div id="last-sync-indicator" style="margin: 0 0 15px 0; font-size: 13px; color: var(--text-muted);">
+                            Última sincronización: <span id="last-sync-text">Nunca</span>
                         </div>
 
                         <button class="btn btn-primary" onclick="syncWithSupabase()" id="btn-sync-supabase" style="margin-top: 10px; display: none;">

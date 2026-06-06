@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderMaterialsTable();
     renderRecipesGrid();
     renderCatalogTable();
+    updateSyncUI();
     
     // Poner fecha de hoy en el listado para imprimir
     document.getElementById("print-date").innerText = `Fecha de emisión: ${new Date().toLocaleDateString()}`;
@@ -88,6 +89,12 @@ function loadState() {
     
     if (!state.recipesViewMode) {
         state.recipesViewMode = "grid";
+    }
+    if (state.hasUnsyncedChanges === undefined) {
+        state.hasUnsyncedChanges = false;
+    }
+    if (state.lastSyncAt === undefined) {
+        state.lastSyncAt = null;
     }
     
     // Clasificar materiales viejos si no tienen categoría o re-calcular costos unitarios
@@ -1332,6 +1339,21 @@ function logout() {
 async function syncWithSupabase(showNotification = true) {
     if (!supabaseClient) return false;
     
+    if (state.hasUnsyncedChanges) {
+        const confirmSync = confirm(
+            "Tienes cambios locales guardados sin conexión en este dispositivo.\n\n" +
+            "• Presiona ACEPTAR si deseas SUBIR tus cambios locales a la nube (sobrescribirá la nube).\n" +
+            "• Presiona CANCELAR si deseas DESCARTAR tus cambios locales y DESCARGAR lo que está en la nube."
+        );
+        if (confirmSync) {
+            const success = await uploadLocalDataToCloud();
+            return success;
+        } else {
+            state.hasUnsyncedChanges = false;
+            saveState();
+        }
+    }
+    
     try {
         // 1. Obtener insumos
         const { data: materials, error: matError } = await supabaseClient
@@ -1383,6 +1405,8 @@ async function syncWithSupabase(showNotification = true) {
             m.unit_cost = calculateUnitCost(m);
         });
         
+        state.hasUnsyncedChanges = false;
+        state.lastSyncAt = new Date().toISOString();
         saveState();
         
         // Renderizar vistas
@@ -1390,6 +1414,7 @@ async function syncWithSupabase(showNotification = true) {
         renderMaterialsTable();
         renderRecipesGrid();
         renderCatalogTable();
+        updateSyncUI();
         
         if (showNotification) {
             showToast("Datos sincronizados con la nube.");
@@ -1405,7 +1430,11 @@ async function syncWithSupabase(showNotification = true) {
 }
 
 async function saveMaterialToCloud(material, originalName) {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        state.hasUnsyncedChanges = true;
+        saveState();
+        return;
+    }
     
     try {
         let error = null;
@@ -1438,12 +1467,18 @@ async function saveMaterialToCloud(material, originalName) {
         await syncWithSupabase();
     } catch (e) {
         console.error("Error guardando material en la nube:", e);
+        state.hasUnsyncedChanges = true;
+        saveState();
         showToast("Error en la nube. Cambios guardados localmente.", "error");
     }
 }
 
 async function deleteMaterialFromCloud(name) {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        state.hasUnsyncedChanges = true;
+        saveState();
+        return;
+    }
     
     try {
         const { error } = await supabaseClient
@@ -1455,12 +1490,18 @@ async function deleteMaterialFromCloud(name) {
         await syncWithSupabase();
     } catch (e) {
         console.error("Error eliminando material de la nube:", e);
+        state.hasUnsyncedChanges = true;
+        saveState();
         showToast("Error al eliminar en la nube.", "error");
     }
 }
 
 async function saveRecipeToCloud(recipe, originalName) {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        state.hasUnsyncedChanges = true;
+        saveState();
+        return;
+    }
     
     try {
         let recipeData = null;
@@ -1523,12 +1564,18 @@ async function saveRecipeToCloud(recipe, originalName) {
         await syncWithSupabase();
     } catch (e) {
         console.error("Error guardando receta en la nube:", e);
+        state.hasUnsyncedChanges = true;
+        saveState();
         showToast("Error al guardar receta en la nube.", "error");
     }
 }
 
 async function deleteRecipeFromCloud(name) {
-    if (!supabaseClient) return;
+    if (!supabaseClient) {
+        state.hasUnsyncedChanges = true;
+        saveState();
+        return;
+    }
     
     try {
         const { error } = await supabaseClient
@@ -1540,6 +1587,8 @@ async function deleteRecipeFromCloud(name) {
         await syncWithSupabase();
     } catch (e) {
         console.error("Error eliminando receta de la nube:", e);
+        state.hasUnsyncedChanges = true;
+        saveState();
         showToast("Error al eliminar receta en la nube.", "error");
     }
 }
@@ -1682,6 +1731,140 @@ function shareCatalogWhatsApp() {
     window.open(url, '_blank');
 }
 
+// NUEVOS MÉTODOS DE SINCRONIZACIÓN Y ESPEJADO LOCAL -> NUBE
+async function uploadLocalDataToCloud() {
+    if (!supabaseClient) return false;
+    
+    try {
+        showToast("Subiendo datos locales a la nube...", "info");
+        
+        // 1. Limpieza de elementos que ya no existen localmente
+        const localMaterialNames = state.raw_materials.map(m => m.name.toUpperCase());
+        const { data: remoteMaterials } = await supabaseClient.from('raw_materials').select('name');
+        if (remoteMaterials) {
+            for (const rm of remoteMaterials) {
+                if (!localMaterialNames.includes(rm.name.toUpperCase())) {
+                    await supabaseClient.from('raw_materials').delete().eq('name', rm.name.toUpperCase());
+                }
+            }
+        }
+        
+        const localRecipeNames = state.recipes.map(r => r.name.toUpperCase());
+        const { data: remoteRecipes } = await supabaseClient.from('recipes').select('name');
+        if (remoteRecipes) {
+            for (const rr of remoteRecipes) {
+                if (!localRecipeNames.includes(rr.name.toUpperCase())) {
+                    await supabaseClient.from('recipes').delete().eq('name', rr.name.toUpperCase());
+                }
+            }
+        }
+        
+        // 2. Subir todas las materias primas
+        for (const mat of state.raw_materials) {
+            const materialBody = {
+                name: mat.name,
+                category: mat.category,
+                unit: mat.unit,
+                package_size: mat.package_size,
+                package_cost: mat.package_cost
+            };
+            
+            const { data, error } = await supabaseClient
+                .from('raw_materials')
+                .upsert(materialBody, { onConflict: 'name' })
+                .select();
+                
+            if (error) throw error;
+            if (data && data.length > 0) {
+                mat.id = data[0].id;
+            }
+        }
+        
+        saveState();
+        
+        // 3. Subir todas las recetas
+        for (const recipe of state.recipes) {
+            const recipeBody = {
+                name: recipe.name,
+                sheet_name: recipe.sheet_name || recipe.name,
+                extra_expenses: recipe.extra_expenses,
+                margin: recipe.margin,
+                image: recipe.image || null
+            };
+            
+            const { data, error } = await supabaseClient
+                .from('recipes')
+                .upsert(recipeBody, { onConflict: 'name' })
+                .select();
+                
+            if (error) throw error;
+            if (!data || data.length === 0) continue;
+            
+            const recipeId = data[0].id;
+            
+            const { error: delError } = await supabaseClient
+                .from('recipe_ingredients')
+                .delete()
+                .eq('recipe_id', recipeId);
+                
+            if (delError) throw delError;
+            
+            const ingredientsToInsert = recipe.ingredients.map(ing => {
+                const mat = state.raw_materials.find(m => m.name.toUpperCase() === ing.material_name.toUpperCase());
+                if (!mat || !mat.id) return null;
+                return {
+                    recipe_id: recipeId,
+                    material_id: mat.id,
+                    quantity: ing.quantity
+                };
+            }).filter(x => x !== null);
+            
+            if (ingredientsToInsert.length > 0) {
+                const { error: insError } = await supabaseClient
+                    .from('recipe_ingredients')
+                    .insert(ingredientsToInsert);
+                if (insError) throw insError;
+            }
+        }
+        
+        state.hasUnsyncedChanges = false;
+        state.lastSyncAt = new Date().toISOString();
+        saveState();
+        
+        updateSyncUI();
+        showToast("Datos sincronizados en la nube exitosamente.");
+        return true;
+    } catch (e) {
+        console.error("Error al subir datos locales a la nube:", e);
+        showToast("Error al sincronizar con la nube.", "error");
+        return false;
+    }
+}
+
+function updateSyncUI() {
+    const lastSyncTextEl = document.getElementById("last-sync-text");
+    if (lastSyncTextEl) {
+        if (state.lastSyncAt) {
+            const date = new Date(state.lastSyncAt);
+            lastSyncTextEl.innerText = date.toLocaleString();
+        } else {
+            lastSyncTextEl.innerText = "Nunca";
+        }
+    }
+    
+    // Actualizar texto del banner offline si está visible
+    const offlineBannerText = document.querySelector("#offline-banner span");
+    if (offlineBannerText) {
+        if (state.lastSyncAt) {
+            const date = new Date(state.lastSyncAt);
+            const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            offlineBannerText.innerHTML = `Trabajando en <strong>Modo sin Conexión</strong>. (Última sincronización: ${date.toLocaleDateString()} ${timeStr})`;
+        } else {
+            offlineBannerText.innerHTML = `Trabajando en <strong>Modo sin Conexión</strong>. Los cambios se guardarán localmente en este navegador.`;
+        }
+    }
+}
+
 // Hacer globales las funciones llamadas desde el HTML
 window.syncWithSupabase = syncWithSupabase;
 window.handleLoginSubmit = handleLoginSubmit;
@@ -1692,4 +1875,6 @@ window.attemptReconnect = attemptReconnect;
 window.shareProductWhatsApp = shareProductWhatsApp;
 window.shareCatalogWhatsApp = shareCatalogWhatsApp;
 window.removeRecipeImage = removeRecipeImage;
+window.uploadLocalDataToCloud = uploadLocalDataToCloud;
+window.updateSyncUI = updateSyncUI;
 
